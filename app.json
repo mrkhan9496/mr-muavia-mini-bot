@@ -1,7 +1,11 @@
 {
   "name": "MR Muavia Mini Bot",
-  "description": "MR Muavia Mini Bot WhatsApp Bot (multi user, MongoDB session)",
-  "keywords": ["whatsapp", "bot", "queen-md"],
+  "description": "MR Muavia Mini Bot - WhatsApp Bot",
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "mr-muavia"
+  ],
   "env": {
     "MONGODB_URI": {
       "description": "MongoDB connection string (",
