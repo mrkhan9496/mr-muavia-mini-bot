@@ -82,3 +82,44 @@ async (conn, mek, m, { from, reply, q, sender }) => {
         await reply('❌ Feedback nahi bheja ja saka: ' + e.message);
     }
 });
+
+// ============ To Image (sticker -> image) ============
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFile);
+
+cmd({
+    pattern: "toimg",
+    desc: "Replied sticker ko wapas image banao",
+    category: "tools",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    const quoted = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+    if (!quoted || !quoted.stickerMessage) {
+        return await reply('❌ Kisi sticker ko reply karke .toimg likhein.');
+    }
+    const inp = path.join(os.tmpdir(), `ti_${Date.now()}.webp`);
+    const out = path.join(os.tmpdir(), `ti_${Date.now()}.png`);
+    try {
+        const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+        const buf = await downloadMediaMessage(
+            { key: mek.key, message: quoted },
+            'buffer', {},
+            { logger: undefined, reuploadRequest: conn.updateMediaMessage }
+        );
+        fs.writeFileSync(inp, buf);
+        await execFileAsync('ffmpeg', ['-v', 'error', '-y', '-i', inp, out]);
+        await conn.sendMessage(from, {
+            image: fs.readFileSync(out),
+            caption: '> *© Powered by Muavia Mini Bot*'
+        }, { quoted: mek });
+    } catch (e) {
+        await reply('❌ Convert mein error: ' + e.message);
+    } finally {
+        for (const p of [inp, out]) try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {}
+    }
+});
