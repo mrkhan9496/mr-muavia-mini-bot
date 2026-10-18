@@ -56,3 +56,29 @@ async (conn, mek, m, { from, reply, args, q, isGroup }) => {
         await reply('❌ Poll banane mein error: ' + e.message);
     }
 });
+
+// ============ Feedback ============
+cmd({
+    pattern: "feedback",
+    desc: "Owner ko feedback bhejo",
+    category: "utility",
+    filename: __filename
+},
+async (conn, mek, m, { from, reply, q, sender }) => {
+    const text = (q || '').trim();
+    if (!text) {
+        return await reply('❌ Usage:\n.feedback <tumhara message>\nExample: .feedback Bot bohat acha hai!');
+    }
+    const OWNER = (process.env.OWNER_NUMBER || '').replace(/[^0-9]/g, '');
+    if (!OWNER) {
+        return await reply('❌ Owner number configure nahi hai.');
+    }
+    try {
+        await conn.sendMessage(OWNER + '@s.whatsapp.net', {
+            text: `📩 *New Feedback*\n\n👤 From: ${sender}\n💬 ${text.slice(0, 500)}\n\n> *© Powered by Muavia Mini Bot*`
+        });
+        await reply('✅ Feedback bhej diya gaya! Shukriya. 🙏');
+    } catch (e) {
+        await reply('❌ Feedback nahi bheja ja saka: ' + e.message);
+    }
+});
