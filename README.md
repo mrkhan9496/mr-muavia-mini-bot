@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.ibb.co/RTFM9jLB/2f58de823c9d.jpg" width="100%" />
+  <img src="assets/mini-bot-logo.jpg" width="100%" />
 </p>
 
 <h1 align="center">🤖 MR Muavia Mini Bot 🤖</h1>
