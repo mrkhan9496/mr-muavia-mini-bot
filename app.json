@@ -1,0 +1,19 @@
+{
+  "name": "MR Muavia Mini Bot",
+  "description": "MR Muavia Mini Bot WhatsApp Bot (multi user, MongoDB session)",
+  "keywords": ["whatsapp", "bot", "queen-md"],
+  "env": {
+    "MONGODB_URI": {
+      "description": "MongoDB connection string (",
+      "required": true
+    },
+    "OWNER_NUMBER": {
+      "description": "Owner number with country code, no + (e.g. 923001234567)",
+      "required": false
+    },
+    "ADMIN_KEY": {
+      "description": "Secret key for admin routes (/disconnect, /connect-all, /active)",
+      "required": false
+    }
+  }
+}

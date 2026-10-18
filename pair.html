@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MR Muavia Mini Bot PAIR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}
+body{background:radial-gradient(circle at top,#2b0a3d,#0a0a0a 70%);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;font-family:system-ui,sans-serif}
+.box{background:#161616;border:1px solid #333;padding:26px;border-radius:18px;text-align:center;width:90%;max-width:390px;box-shadow:0 0 30px #a020f055}
+h2{margin:0 0 6px}
+p{color:#bbb;font-size:14px}
+input{width:100%;padding:13px;border-radius:25px;border:1px solid #444;background:#0d0d0d;color:#fff;text-align:center;font-size:16px;margin-top:8px}
+button{width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:25px;font-weight:bold;font-size:15px;margin-top:12px;cursor:pointer}
+button:disabled{opacity:.6}
+#result{margin-top:16px;color:#25D366;font-size:30px;letter-spacing:4px;font-weight:bold;word-break:break-all}
+#msg{margin-top:10px;font-size:13px;color:#ddd;min-height:18px}
+.steps{text-align:left;font-size:13px;color:#aaa;margin-top:14px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>👑 MR Muavia Mini Bot</h2>
+  <p>Apna WhatsApp number country code ke saath likho (bina + ke)</p>
+  <input id="num" type="tel" inputmode="numeric" placeholder="923001234567">
+  <button id="btn" onclick="getCode()">GET PAIR CODE</button>
+  <div id="result"></div>
+  <button id="copy" style="display:none;background:#6a1bd1" onclick="copyCode()">COPY CODE</button>
+  <div id="msg"></div>
+  <div class="steps">
+    1️⃣ WhatsApp → Linked Devices<br>
+    2️⃣ Link a Device → <b>Link with phone number instead</b><br>
+    3️⃣ Upar wala code paste karo, bot khud connect ho jayega ✅
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+async function getCode(){
+  const n=$('num').value.replace(/[^0-9]/g,'');
+  if(n.length<8||n.length>15){$('msg').innerText='❌ Sahi number likho (92300xxxxxxx)';return;}
+  $('btn').disabled=true;$('result').innerText='';$('copy').style.display='none';$('msg').innerText='⏳ Code ban raha hai, wait karo...';
+  try{
+    const r=await fetch('/code?number='+n);
+    const d=await r.json();
+    if(d.code){
+      $('result').innerText=d.code;$('copy').style.display='block';
+      $('msg').innerText='✅ Ye code WhatsApp me paste karo (60 sec me)';
+    }else if(d.status==='already_connected'){
+      $('msg').innerText='✅ Ye number pehle se connected hai';
+    }else{
+      $('msg').innerText='❌ '+(d.message||d.error||'Error, dobara try karo');
+    }
+  }catch(e){$('msg').innerText='❌ Network error, dobara try karo';}
+  $('btn').disabled=false;
+}
+function copyCode(){navigator.clipboard.writeText($('result').innerText).then(()=>{$('msg').innerText='📋 Copy ho gaya'})}
+</script>
+</body>
+</html>
