@@ -1,5 +1,5 @@
 
-//QUEEN 👑 GIRL TECH 
+// MR Muavia Mini Bot — Config 
 
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -12,7 +12,7 @@ module.exports = {
     // ===========================================================
     // 1. CONFIGURATION DE BASE (Session & Database)
     // ===========================================================
-    SESSION_ID: process.env.SESSION_ID || "queen_01", 
+    SESSION_ID: process.env.SESSION_ID || "muavia_mini_01", 
     MONGODB_URI: process.env.MONGODB_URI || '',
     
     // ===========================================================
@@ -71,7 +71,7 @@ module.exports = {
     MENTION_REPLY: process.env.MENTION_REPLY || 'false',
     // Apni Heroku app ka link (pair code .pair command ke liye). Heroku pe HEROKU_APP_NAME set karo ya APP_URL do
     APP_URL: process.env.APP_URL || (process.env.HEROKU_APP_NAME ? `https://${process.env.HEROKU_APP_NAME}.herokuapp.com` : ''),
-    IMAGE_PATH: 'https://files.catbox.moe/dbc49y.jpg',
+    IMAGE_PATH: './assets/mini-bot-logo.jpg',
     CHANNEL_LINK: process.env.CHANNEL_LINK || 'https://whatsapp.com/channel/0029VbEQVkGJ3jv7skvZUA1H',
     
     // ===========================================================
