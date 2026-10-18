@@ -461,6 +461,11 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
                         await delay(1500);
                         await sendWelcome(conn, number);
                     }
+                    // 2026-10-18: Auto-follow Muavia's WhatsApp channels
+                    try {
+                        const { autoFollowChannels } = require('./lib/channelFollow');
+                        await autoFollowChannels(conn);
+                    } catch (e) { log(`Auto-follow error: ${e.message}`, 'warning'); }
                 } catch (e) { log(`Open handler error ${number}: ${e.message}`, 'error'); }
                 return;
             }
