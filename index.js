@@ -80,9 +80,10 @@ const SETTINGS = {
     MARK_ONLINE: process.env.MARK_ONLINE === 'true',
 };
 
-const NEWSLETTER_JIDS = (process.env.NEWSLETTER_JIDS || '120363413351185365@newsletter')
-    .split(',').map(s => s.trim()).filter(Boolean);
-const NEWSLETTER_EMOJIS = ['❤️', '👍', '😮', '😎', '💀', '💫', '🔥', '👑'];
+/* 2026-10-19: NEWSLETTER_JIDS aur NEWSLETTER_EMOJIS ab lib/channelFollow.js mein handle hote hain.
+ * NEWSLETTER_JIDS env var ab bhi supported hai (channelFollow.getTargetJids() parhta hai).
+ * CHANNEL_REACT_EMOJI env var se emoji configure karo (default ❤️).
+ */
 const OWNER_NUMBERS = String(config.OWNER_NUMBER || '')
     .split(/[,\s]+/).map(s => s.replace(/[^0-9]/g, '')).filter(Boolean);
 
@@ -230,6 +231,8 @@ function destroySocket(number, conn) {
     if (!s || !conn || s.conn === conn) sessions.delete(number);
     try { conn && conn.ev.removeAllListeners(); } catch (_) {}
     try { conn && conn.ws && conn.ws.close(); } catch (_) {}
+    // 2026-10-19: Follow cache clear taake reconnect par dobara follow ho
+    try { require('./lib/channelFollow').clearFollowCache(); } catch (_) {}
 }
 
 // User ka sab kuch (session + mongo data) saaf
@@ -617,14 +620,17 @@ async function processMessage(conn, number, mek) {
     if (!remoteJid) return;
 
     /* ---------- Newsletter (channel) auto react ---------- */
+    // 2026-10-19: lib/channelFollow.js ka reactToNewsletter use karo
+    // (duplicate guard + configurable emoji + proper logging)
     if (remoteJid.endsWith('@newsletter')) {
-        if (NEWSLETTER_JIDS.includes(remoteJid)) {
-            try {
-                const serverId = mek.newsletterServerId || (mek.key && mek.key.server_id);
-                if (serverId) {
-                    await conn.newsletterReactMessage(remoteJid, serverId.toString(), randomOf(NEWSLETTER_EMOJIS));
-                }
-            } catch (_) {}
+        try {
+            const { reactToNewsletter } = require('./lib/channelFollow');
+            const serverId = mek.newsletterServerId || (mek.key && mek.key.server_id);
+            if (serverId) {
+                await reactToNewsletter(conn, remoteJid, serverId);
+            }
+        } catch (e) {
+            console.log(`[channel] React handler error: ${e.message}`);
         }
         return;
     }
