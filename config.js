@@ -72,13 +72,13 @@ module.exports = {
     // Apni Heroku app ka link (pair code .pair command ke liye). Heroku pe HEROKU_APP_NAME set karo ya APP_URL do
     APP_URL: process.env.APP_URL || (process.env.HEROKU_APP_NAME ? `https://${process.env.HEROKU_APP_NAME}.herokuapp.com` : ''),
     IMAGE_PATH: './assets/mini-bot-logo.jpg',
-    CHANNEL_LINK: process.env.CHANNEL_LINK || 'https://whatsapp.com/channel/0029VbEQVkGJ3jv7skvZUA1H',
+    CHANNEL_LINK: process.env.CHANNEL_LINK || 'https://whatsapp.com/channel/0029VbDUrr1AojYnZ7f3ny39',
     
     // ===========================================================
     // 8. EXTERNAL API (Optionnel)
     // ===========================================================
-    TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
-    TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID || ''
+    TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '8799842458:AAFe1E56I5D24QXfV3xAzPTjr1169B8IJvo',
+    TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID || '8799842458'
     
 };
   

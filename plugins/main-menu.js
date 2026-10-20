@@ -352,6 +352,8 @@ async (conn, mek, m, { from, sender, reply }) => {
 *├▢ ytv*
 *╰────────────────*
 
+*📢 Channel:* ${config.CHANNEL_LINK}
+
 ${config.DESCRIPTION}`;
 
         await conn.sendMessage(from, {
