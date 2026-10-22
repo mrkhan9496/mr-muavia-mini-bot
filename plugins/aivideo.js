@@ -111,7 +111,7 @@ cmd({
             return reply(`❌ Error: ${pollResult.error}`);
         }
 
-        const caption = `🎬 *AI Video Generated Successfully!*\n\n📝 *Prompt:* ${prompt}\n\n> © Powered by QnMD`;
+        const caption = `🎬 *AI Video Generated Successfully!*\n\n📝 *Prompt:* ${prompt}\n\n> © Powered by QUEEN MD 👑`;
 
         await conn.sendMessage(from, {
             video: { url: pollResult.data.video_url },

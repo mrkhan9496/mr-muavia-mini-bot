@@ -9,7 +9,7 @@ const { cmd } = require('../inconnuboy');
 const { Schedule } = require('../data/Schedule');
 const { parseDateTime, fmtKarachi } = require('../lib/miniScheduler');
 
-const FOOTER = '\n\n> *© Powered by QnMD*';
+const FOOTER = '\n\n> *© Powered by QUEEN MD 👑*';
 
 function genJobId() {
     return `job-${Date.now()}-${Math.random().toString(36).slice(0, 6)}`;

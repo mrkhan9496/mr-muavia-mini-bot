@@ -89,7 +89,7 @@ async (conn, mek, m, { from, isGroup, reply, q, sender }) => {
 
         // Success Message
         await conn.sendMessage(from, { 
-            text: `*👤 USER ADDED SUCCESSFULLY*\n\nUser @${users.split('@')[0]} has been added to the group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
+            text: `*👤 USER ADDED SUCCESSFULLY*\n\nUser @${users.split('@')[0]} has been added to the group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑*`,
             mentions: [users],
             contextInfo: {
                 forwardingScore: 999,

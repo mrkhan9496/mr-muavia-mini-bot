@@ -112,7 +112,7 @@ cmd({
         // Send Result
         await conn.sendMessage(from, {
             image: { url: result.url },
-            caption: `✅ *AI UPSCALE COMPLETE*\n\n🔍 *Scale:* ${scale}x\n📦 *Size:* ${(result.size / 1024).toFixed(2)} KB\n\n*🚀 Powered by QnMD*`,
+            caption: `✅ *AI UPSCALE COMPLETE*\n\n🔍 *Scale:* ${scale}x\n📦 *Size:* ${(result.size / 1024).toFixed(2)} KB\n\n*🚀 Powered by QUEEN MD 👑*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,

@@ -27,15 +27,15 @@ async function sendRandomVideo(conn, mek, from, subdir, caption) {
 
 cmd({ pattern: "mard", desc: "Random MARD video", category: "reality", react: "🔥" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'mard', '🔥 *MARD* 🔥\n> © Powered by QnMD');
+    await sendRandomVideo(conn, mek, from, 'mard', '🔥 *MARD* 🔥\n> © Powered by QUEEN MD 👑');
 });
 
 cmd({ pattern: "sad", desc: "Random SAD video", category: "reality", react: "🥀" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'sad', '🥀 *SAD* 🥀\n> © Powered by QnMD');
+    await sendRandomVideo(conn, mek, from, 'sad', '🥀 *SAD* 🥀\n> © Powered by QUEEN MD 👑');
 });
 
 cmd({ pattern: "baap", desc: "Random BAAP video", category: "reality", react: "👑" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'baap', '👑 *BAAP* 👑\n> © Powered by QnMD');
+    await sendRandomVideo(conn, mek, from, 'baap', '👑 *BAAP* 👑\n> © Powered by QUEEN MD 👑');
 });

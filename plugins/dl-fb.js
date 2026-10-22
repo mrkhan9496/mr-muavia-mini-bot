@@ -78,7 +78,7 @@ cmd({
 ├─ 📂 *Format:* MP4 (HD/SD)
 ╰───────────────────🚀
 
-*🚀 Powered by QnMD*`;
+*🚀 Powered by QUEEN MD 👑*`;
 
         // 2. Sending Video with Newsletter Context
         await conn.sendMessage(from, { 

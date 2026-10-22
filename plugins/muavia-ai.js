@@ -8,7 +8,7 @@
 const { cmd } = require('../inconnuboy');
 const { chatText, getApiKey } = require('../lib/geminiApi');
 
-const FOOTER = '\n\n> *© Powered by QnMD*';
+const FOOTER = '\n\n> *© Powered by QUEEN MD 👑*';
 
 function needKey(reply) {
     if (!getApiKey()) {

@@ -48,7 +48,7 @@ cmd({
 📍 ADDR: ${address}
 📞 NUM: ${phone}
 
-✨ ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD`;
+✨ ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`;
 
         await reply(text);
 

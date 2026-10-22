@@ -20,7 +20,7 @@ cmd({
 *├▢ 🌐 Web:* ${config.APP_URL || ''}
 *╰────────────────*
 
-> *© Powered by QnMD*`;
+> *© Powered by QUEEN MD 👑*`;
 
         await conn.sendMessage(from, {
             image: { url: config.MENU_IMAGE_URL || 'https://up6.cc/2026/06/178265938722861.jpg' },

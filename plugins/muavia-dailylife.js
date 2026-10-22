@@ -13,7 +13,7 @@
 
 const { cmd } = require('../inconnuboy');
 
-const FOOTER = '\n\n> *© Powered by QnMD*';
+const FOOTER = '\n\n> *© Powered by QUEEN MD 👑*';
 
 const REPLIES = {
     // 1. Salam aur Greetings

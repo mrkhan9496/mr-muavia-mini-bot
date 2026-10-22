@@ -69,7 +69,7 @@ cmd({
             menuText += `╰────────────────────◇\n\n`;
         }
 
-        menuText += `> *© Powered by QnMD*`;
+        menuText += `> *© Powered by QUEEN MD 👑*`;
 
         await conn.sendMessage(from, {
             image: { url: config.IMAGE_PATH },

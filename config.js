@@ -22,8 +22,8 @@ module.exports = {
     OWNER_NUMBER: process.env.OWNER_NUMBER || '923426637623', // Mettez votre numéro ici
     BOT_NAME: "Queen MD",
     OWNER_NAME: process.env.OWNER_NAME || 'MR Muavia',
-    DESCRIPTION: process.env.DESCRIPTION || '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD',
-    BOT_FOOTER: '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD',
+    DESCRIPTION: process.env.DESCRIPTION || '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑',
+    BOT_FOOTER: '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑',
     
     // Mode de travail : public, private, group, inbox
     WORK_TYPE: process.env.WORK_TYPE || "public", 

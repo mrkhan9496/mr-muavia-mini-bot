@@ -67,7 +67,7 @@ async (conn, mek, m, { from, q, reply, prefix }) => {
 2️⃣ *Audio (MP3)*
 3️⃣ *Photos (SlideShow)*
 
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD`;
+> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`;
 
         // Send Thumbnail and Menu
         const sentMsg = await conn.sendMessage(targetChat, { 
