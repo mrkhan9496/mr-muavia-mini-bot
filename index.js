@@ -53,6 +53,7 @@ const {
     incrementStats,
     getStatsForNumber,
 } = require('./lib/database');
+const { getMerged } = require('./lib/botSettings');
 
 /* ==========================================================================
  *  1. SETTINGS
@@ -727,7 +728,10 @@ async function processMessage(conn, number, mek) {
     const reply = (t) => conn.sendMessage(from, { text: t }, { quoted: myquoted });
     const l = reply;
 
+    const mergedConfig = isCmd ? await getMerged(number).catch(() => userConfig) : userConfig;
+
     const ctx = {
+        number, userConfig: mergedConfig,
         from, l, quoted: mek, body, isCmd, command, args, q, text, prefix: PREFIX,
         isGroup, sender, senderNumber, botNumber2, botNumber, pushname,
         isMe, isOwner, isCreator, groupMetadata, groupName, participants,
