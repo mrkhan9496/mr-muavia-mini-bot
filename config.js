@@ -13,7 +13,7 @@ module.exports = {
     // 1. CONFIGURATION DE BASE (Session & Database)
     // ===========================================================
     SESSION_ID: process.env.SESSION_ID || "muavia_mini_01", 
-    MONGODB_URI: process.env.MONGODB_URI || '',
+    DATABASE_URL: process.env.DATABASE_URL || '',
     
     // ===========================================================
     // 2. INFORMATIONS DU BOT

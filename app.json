@@ -7,8 +7,8 @@
     "mr-muavia"
   ],
   "env": {
-    "MONGODB_URI": {
-      "description": "MongoDB connection string (",
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string (Neon) — postgresql://user:pass@host/db?sslmode=require",
       "required": true
     },
     "OWNER_NUMBER": {
