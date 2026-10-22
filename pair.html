@@ -38,19 +38,33 @@ const $=id=>document.getElementById(id);
 async function getCode(){
   const n=$('num').value.replace(/[^0-9]/g,'');
   if(n.length<8||n.length>15){$('msg').innerText='❌ Sahi number likho (92300xxxxxxx)';return;}
-  $('btn').disabled=true;$('result').innerText='';$('copy').style.display='none';$('msg').innerText='⏳ Code ban raha hai, wait karo...';
-  try{
-    const r=await fetch('/code?number='+n);
-    const d=await r.json();
-    if(d.code){
+  $('btn').disabled=true;$('result').innerText='';$('copy').style.display='none';
+  $('msg').innerText='⏳ Code ban raha hai, wait karo...';
+  const deadline=Date.now()+120000;
+  const sleep=ms=>new Promise(rs=>setTimeout(rs,ms));
+  while(true){
+    let d=null;
+    try{
+      const r=await fetch('/code?number='+n);
+      d=await r.json().catch(()=>null);
+    }catch(e){d=null;}
+    if(d&&d.code){
       $('result').innerText=d.code;$('copy').style.display='block';
       $('msg').innerText='✅ Ye code WhatsApp me paste karo (60 sec me)';
-    }else if(d.status==='already_connected'){
-      $('msg').innerText='✅ Ye number pehle se connected hai';
-    }else{
-      $('msg').innerText='❌ '+(d.message||d.error||'Error, dobara try karo');
+      break;
     }
-  }catch(e){$('msg').innerText='❌ Network error, dobara try karo';}
+    if(d&&d.status==='already_connected'){
+      $('msg').innerText='✅ Ye number pehle se connected hai';
+      break;
+    }
+    if(d&&d.status!=='generating'&&d.status!=='connection_in_progress'){
+      $('msg').innerText='❌ '+(d.message||d.error||'Error, dobara try karo');
+      break;
+    }
+    if(Date.now()>deadline){$('msg').innerText='❌ Timeout, dobara try karo';break;}
+    $('msg').innerText='⏳ Code ban raha hai, wait karo...';
+    await sleep(3000);
+  }
   $('btn').disabled=false;
 }
 function copyCode(){navigator.clipboard.writeText($('result').innerText).then(()=>{$('msg').innerText='📋 Copy ho gaya'})}

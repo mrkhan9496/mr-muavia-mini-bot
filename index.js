@@ -207,6 +207,7 @@ function loadPlugins() {
  * ========================================================================== */
 const sessions = new Map();
 const connecting = new Set();     // setup ke dauran lock
+const pairErrors = new Map();     // number -> { message, at } background pairing ki ghalti (polling page ke liye)
 const retryCount = new Map();     // reconnect attempts
 const reconnectTimers = new Map();
 let shuttingDown = false;
@@ -378,7 +379,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
 
     // Pair code abhi abhi diya hua hai -> wahi dobara do
     if (existing && existing.pairing && !restore) {
-        if (Date.now() - existing.pairing.at < 50 * 1000) {
+        if (Date.now() - existing.pairing.at < 150 * 1000) {
             return send(res, { code: existing.pairing.code, status: 'new_pairing' });
         }
         destroySocket(number, existing.conn);
@@ -389,6 +390,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
         return send(res, { status: 'connection_in_progress', message: 'Thora wait karo' }, 429);
     }
     if (!sessions.has(number) && sessions.size >= SETTINGS.MAX_SESSIONS) {
+        pairErrors.set(number, { message: 'Server full hai (MAX_SESSIONS)', at: Date.now() });
         return send(res, { status: 'error', message: 'Server full hai (MAX_SESSIONS)' }, 503);
     }
 
@@ -529,6 +531,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
                 const rawCode = await conn.requestPairingCode(number);
                 const code = (rawCode && rawCode.match(/.{1,4}/g) || [rawCode]).join('-');
                 session.pairing = { code, at: Date.now() };
+                pairErrors.delete(number);
                 log(`Pair code ${number}: ${code}`, 'success');
                 send(res, { code, status: 'new_pairing' });
 
@@ -543,6 +546,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
                 }, SETTINGS.PAIR_TIMEOUT_MS);
             } catch (error) {
                 log(`Pair code error ${number}: ${error.message}`, 'error');
+                pairErrors.set(number, { message: 'Pair code nahi ban saka: ' + error.message, at: Date.now() });
                 destroySocket(number, conn);
                 await clearMongoAuth(number).catch(() => {});
                 send(res, { status: 'error', message: 'Pair code nahi ban saka: ' + error.message }, 500);
@@ -553,6 +557,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
         }
     } catch (err) {
         log(`startSession error ${number}: ${err.message}`, 'error');
+        if (!restore) pairErrors.set(number, { message: err.message, at: Date.now() });
         if (conn) destroySocket(number, conn);
         send(res, { status: 'error', message: err.message }, 500);
     } finally {
@@ -786,23 +791,29 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Simple IP rate limiter
-const hits = new Map();
-function rateLimit(req, res, next) {
-    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-    const now = Date.now();
-    const rec = hits.get(ip) || { count: 0, start: now };
-    if (now - rec.start > SETTINGS.RATE_WINDOW_MS) { rec.count = 0; rec.start = now; }
-    rec.count++;
-    hits.set(ip, rec);
-    if (rec.count > SETTINGS.RATE_MAX) {
-        return res.status(429).json({ status: 'error', message: 'Bohat zyada requests, 1 minute baad try karo' });
-    }
-    next();
+// Simple IP rate limiter (har route group ka apna store)
+const limitStores = [];
+function makeRateLimit(max) {
+    const hits = new Map();
+    limitStores.push(hits);
+    return function (req, res, next) {
+        const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+        const now = Date.now();
+        const rec = hits.get(ip) || { count: 0, start: now };
+        if (now - rec.start > SETTINGS.RATE_WINDOW_MS) { rec.count = 0; rec.start = now; }
+        rec.count++;
+        hits.set(ip, rec);
+        if (rec.count > max) {
+            return res.status(429).json({ status: 'error', message: 'Bohat zyada requests, 1 minute baad try karo' });
+        }
+        next();
+    };
 }
+const rateLimit = makeRateLimit(SETTINGS.RATE_MAX);
+const pairRateLimit = makeRateLimit(60); // /code polling ke liye (page har 3s check karta hai)
 setInterval(() => {
     const now = Date.now();
-    for (const [ip, rec] of hits) if (now - rec.start > SETTINGS.RATE_WINDOW_MS * 2) hits.delete(ip);
+    for (const hits of limitStores) for (const [ip, rec] of hits) if (now - rec.start > SETTINGS.RATE_WINDOW_MS * 2) hits.delete(ip);
 }, 5 * 60 * 1000).unref();
 
 // Admin-only routes (Heroku Config Var: ADMIN_KEY)
@@ -819,21 +830,39 @@ function requireAdmin(req, res, next) {
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'pair.html')));
 
 /* ---------- Pair code ---------- */
-app.get('/code', rateLimit, async (req, res) => {
+app.get('/code', pairRateLimit, async (req, res) => {
     const number = digits(req.query.number);
-    if (!number) return res.status(400).json({ status: 'error', error: 'Number required', message: 'Number likho' });
+    if (!number || number.length < 8 || number.length > 15) return res.status(400).json({ status: 'error', error: 'Number required', message: 'Number sahi nahi hai (country code ke saath likho)' });
 
-    // Heroku ka 30 sec router timeout se pehle jawab de do
-    const guard = setTimeout(() => {
-        send(res, { status: 'error', message: 'Timeout, dobara try karo' }, 504);
-    }, 25000);
-
-    try {
-        await startSession(number, { res });
-        send(res, { status: 'error', message: 'Koi jawab nahi aaya, dobara try karo' }, 500);
-    } finally {
-        clearTimeout(guard);
+    // Database tayyar na ho to fauri jawab (25s wale purane timeout wala chakkar khatam:
+    // ab code background me banta hai aur page polling se le leta hai)
+    if (!isDbReady()) {
+        return send(res, { status: 'error', message: 'Database connect nahi hai, thori der baad try karo' }, 503);
     }
+
+    const s = sessions.get(number);
+    if (s && s.connected) {
+        const info = connectionInfo(number);
+        return send(res, { status: 'already_connected', message: 'Ye number pehle se connected hai', connectionTime: info.connectionTime, uptime: `${info.uptime} seconds` });
+    }
+    // Tayyar code para hai -> fauri do
+    if (s && s.pairing && Date.now() - s.pairing.at < 150 * 1000) {
+        return send(res, { code: s.pairing.code, status: 'new_pairing' });
+    }
+    // Generation chal rahi hai -> page ko wait ka signal
+    if (s || connecting.has(number)) {
+        return send(res, { status: 'generating', message: 'Code ban raha hai, wait karo...' }, 202);
+    }
+    // Pichli background koshish ki ghalti (ek dafa dikha kar saaf)
+    const pe = pairErrors.get(number);
+    if (pe && Date.now() - pe.at < 60 * 1000) {
+        pairErrors.delete(number);
+        return send(res, { status: 'error', message: pe.message }, 500);
+    }
+    // Nayi generation background me shuru karo aur fauri jawab do
+    pairErrors.delete(number);
+    startSession(number, {}).catch((e) => log(`Pair start error ${number}: ${e.message}`, 'error'));
+    return send(res, { status: 'generating', message: 'Code ban raha hai, wait karo...' }, 202);
 });
 
 /* ---------- Status / info ---------- */
