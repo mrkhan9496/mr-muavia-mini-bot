@@ -33,11 +33,11 @@ async (conn, mek, m, { from, sender, reply }) => {
 *╰─────────────────⭓*
 
 *╭────⬡ SETTINGS STATUS ⬡────*
-*├▢ 👁️ Auto View:* ${userConfig.AUTO_VIEW_STATUS === 'true' ? 'ON ✅' : 'OFF ❌'}
-*├▢ 📵 Anti Call:* ${userConfig.ANTI_CALL === 'true' ? 'ON ✅' : 'OFF ❌'}
-*├▢ 🎙️ Auto Record:* ${userConfig.AUTO_RECORDING === 'true' ? 'ON ✅' : 'OFF ❌'}
-*├▢ ⌨️ Auto Typing:* ${userConfig.AUTO_TYPING === 'true' ? 'ON ✅' : 'OFF ❌'}
-*├▢ 📖 Auto Read:* ${userConfig.READ_MESSAGE === 'true' ? 'ON ✅' : 'OFF ❌'}
+*├▢ 👁️ Auto View:* ${userConfig.AUTO_VIEW_STATUS === 'true' ? 'ON ✅' : 'OFF'}
+*├▢ 📵 Anti Call:* ${userConfig.ANTI_CALL === 'true' ? 'ON ✅' : 'OFF'}
+*├▢ 🎙️ Auto Record:* ${userConfig.AUTO_RECORDING === 'true' ? 'ON ✅' : 'OFF'}
+*├▢ ⌨️ Auto Typing:* ${userConfig.AUTO_TYPING === 'true' ? 'ON ✅' : 'OFF'}
+*├▢ 📖 Auto Read:* ${userConfig.READ_MESSAGE === 'true' ? 'ON ✅' : 'OFF'}
 *╰─────────────────⭓*
 
 *╭────⬡ DOWNLOAD MENU ⬡────*

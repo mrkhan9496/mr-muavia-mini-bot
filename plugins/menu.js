@@ -48,11 +48,11 @@ cmd({
         menuText += `│ 🔌 Mode: ${config.WORK_TYPE || 'public'}\n`;
         menuText += `│──────────────────────\n`;
         menuText += `│ ⚙️ Settings Status\n`;
-        menuText += `│ 👁️ Auto View: ${userConfig.AUTO_VIEW_STATUS === 'true' ? 'ON ✅' : 'OFF ❌'}\n`;
-        menuText += `│ 📵 Anti Call: ${userConfig.ANTI_CALL === 'true' ? 'ON ✅' : 'OFF ❌'}\n`;
-        menuText += `│ 🎙️ Auto Record: ${userConfig.AUTO_RECORDING === 'true' ? 'ON ✅' : 'OFF ❌'}\n`;
-        menuText += `│ ⌨️ Auto Typing: ${userConfig.AUTO_TYPING === 'true' ? 'ON ✅' : 'OFF ❌'}\n`;
-        menuText += `│ ✅ Auto Read: ${userConfig.READ_MESSAGE === 'true' ? 'ON ✅' : 'OFF ❌'}\n`;
+        menuText += `│ 👁️ Auto View: ${userConfig.AUTO_VIEW_STATUS === 'true' ? 'ON ✅' : 'OFF'}\n`;
+        menuText += `│ 📵 Anti Call: ${userConfig.ANTI_CALL === 'true' ? 'ON ✅' : 'OFF'}\n`;
+        menuText += `│ 🎙️ Auto Record: ${userConfig.AUTO_RECORDING === 'true' ? 'ON ✅' : 'OFF'}\n`;
+        menuText += `│ ⌨️ Auto Typing: ${userConfig.AUTO_TYPING === 'true' ? 'ON ✅' : 'OFF'}\n`;
+        menuText += `│ ✅ Auto Read: ${userConfig.READ_MESSAGE === 'true' ? 'ON ✅' : 'OFF'}\n`;
         menuText += `╰──────────────────────◇\n\n`;
 
         // List commands per category
