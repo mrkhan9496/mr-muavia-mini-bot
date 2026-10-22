@@ -1,5 +1,6 @@
 const { cmd, commands } = require('../inconnuboy');
 const { getUserConfigFromMongoDB } = require('../lib/database');
+const { getChannelContextInfo } = require('../lib/channelBadge');
 const config = require('../config');
 const os = require('os');
 
@@ -71,9 +72,11 @@ cmd({
 
         menuText += `> *© Powered by QUEEN MD 👑*`;
 
+        const channelBadge = await getChannelContextInfo(conn);
         await conn.sendMessage(from, {
             image: { url: config.IMAGE_PATH },
-            caption: menuText
+            caption: menuText,
+            ...channelBadge
         }, { quoted: mek });
 
     } catch (e) {

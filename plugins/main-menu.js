@@ -1,6 +1,7 @@
 const config = require('../config');
 const { cmd } = require('../inconnuboy');
 const { getUserConfigFromMongoDB } = require('../lib/database');
+const { getChannelContextInfo } = require('../lib/channelBadge');
 
 cmd({
     pattern: "menu",
@@ -15,6 +16,10 @@ async (conn, mek, m, { from, sender, reply }) => {
 
         const number = sender.split('@')[0];
         const userConfig = await getUserConfigFromMongoDB(number);
+
+        const channelBadge = await getChannelContextInfo(conn);
+        const hasBadge = !!(channelBadge && channelBadge.contextInfo);
+        const channelLine = hasBadge ? '' : `*📢 Channel:* ${config.CHANNEL_LINK}\n\n`;
 
         const uptime = process.uptime();
         const hours = Math.floor(uptime / 3600);
@@ -352,17 +357,14 @@ async (conn, mek, m, { from, sender, reply }) => {
 *├▢ ytv*
 *╰────────────────*
 
-*📢 Channel:* ${config.CHANNEL_LINK}
-
-${config.DESCRIPTION}`;
+${channelLine}${config.DESCRIPTION}`;
 
         await conn.sendMessage(from, {
             image: { url: config.IMAGE_PATH },
             caption: menuText,
             contextInfo: {
                 mentionedJid: [m.sender],
-                isForwarded: true,
-                forwardingScore: 999,
+                ...(hasBadge ? channelBadge.contextInfo : { isForwarded: true, forwardingScore: 999 })
             }
         }, { quoted: mek });
 
