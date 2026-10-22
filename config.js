@@ -19,9 +19,9 @@ module.exports = {
     // 2. INFORMATIONS DU BOT
     // ===========================================================
     PREFIX: process.env.PREFIX || '.',
-    OWNER_NUMBER: process.env.OWNER_NUMBER || '923426637623', // Mettez votre numéro ici
+    OWNER_NUMBER: process.env.OWNER_NUMBER || '923076012084', // Mettez votre numéro ici
     BOT_NAME: "Queen MD",
-    OWNER_NAME: process.env.OWNER_NAME || 'MR Muavia',
+    OWNER_NAME: process.env.OWNER_NAME || 'Queen MD',
     DESCRIPTION: process.env.DESCRIPTION || '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑',
     BOT_FOOTER: '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑',
     
