@@ -1,6 +1,6 @@
 /**
  * Schedule.js — MongoDB model for scheduled messages & reminders
- * MR Muavia Mini Bot
+ * QnMD
  *
  * Features:
  * - Atomic job claiming via findOneAndUpdate (prevents race conditions)

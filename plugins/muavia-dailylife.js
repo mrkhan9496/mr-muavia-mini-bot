@@ -1,5 +1,5 @@
 /**
- * muavia-dailylife.js — MR Muavia Mini Bot
+ * muavia-dailylife.js — QnMD
  * DAILY LIFE reply commands — rozmarra ke Roman Urdu replies.
  * Ported from old muavia-mini-bot (commands/dailylife.js).
  *
@@ -13,7 +13,7 @@
 
 const { cmd } = require('../inconnuboy');
 
-const FOOTER = '\n\n> *© Powered by MR Muavia Mini Bot*';
+const FOOTER = '\n\n> *© Powered by Queen MD*';
 
 const REPLIES = {
     // 1. Salam aur Greetings

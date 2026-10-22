@@ -19,11 +19,6 @@ cmd({
         const newsletterContext = {
             forwardingScore: 999,
             isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363401706347293@newsletter',
-                newsletterName: '🦋⍣⃝🇰ʜᴀɴzada🕊',
-                serverMessageId: 143
-            }
         };
 
         let responseText = "";

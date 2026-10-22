@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//           MR Muavia Mini Bot - FACEBOOK VIDEO DOWNLOADER (FSAVER)
+//           QnMD - FACEBOOK VIDEO DOWNLOADER (FSAVER)
 //---------------------------------------------------------------------------
 //  🚀 HIGH-SPEED FB VIDEO DOWNLOADS (LID & NEWSLETTER SUPPORT)
 //---------------------------------------------------------------------------
@@ -13,11 +13,6 @@ const config = require('../config');
 const newsletterContext = {
     forwardingScore: 999,
     isForwarded: true,
-    forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363401706347293@newsletter',
-        newsletterName: '🦋⍣⃝🇰ʜᴀɴzada🕊',
-        serverMessageId: 143
-    }
 };
 
 /**
@@ -83,7 +78,7 @@ cmd({
 ├─ 📂 *Format:* MP4 (HD/SD)
 ╰───────────────────🚀
 
-*🚀 Powered by 🦋⍣⃝🇰ʜᴀɴzada🕊*`;
+*🚀 Powered by Queen MD*`;
 
         // 2. Sending Video with Newsletter Context
         await conn.sendMessage(from, { 

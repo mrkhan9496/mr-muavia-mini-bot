@@ -1,5 +1,5 @@
 /**
- * muavia-ai.js — AI commands for MR Muavia Mini Bot
+ * muavia-ai.js — AI commands for QnMD
  * .ai, .ask, .gemini, .summarize, .chatbot
  *
  * Requires GEMINI_API_KEY env var (free from https://aistudio.google.com/apikey)
@@ -8,7 +8,7 @@
 const { cmd } = require('../inconnuboy');
 const { chatText, getApiKey } = require('../lib/geminiApi');
 
-const FOOTER = '\n\n> *© Powered by MR Muavia Mini Bot*';
+const FOOTER = '\n\n> *© Powered by Queen MD*';
 
 function needKey(reply) {
     if (!getApiKey()) {

@@ -6,7 +6,7 @@ cmd({
     pattern: "pair",
     alias: ["getpair", "clonebot", "pair2", "pair3"],
     react: "✅",
-    desc: "Get pairing code for MR Muavia Mini Bot bot",
+    desc: "Get pairing code for QnMD bot",
     category: "download",
     use: ".pair 923195068XXX",
     filename: __filename
@@ -47,7 +47,7 @@ cmd({
         const pairingCode = response.data.code;
 
         await reply(
-`🦋⍣⃝🇰ʜᴀɴᴢᴀᴅᴀ 🕊
+`QnMD
 
 ✅ Pairing Completed
 

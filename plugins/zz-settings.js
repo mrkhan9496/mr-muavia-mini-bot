@@ -230,7 +230,7 @@ for (const kind of ['image', 'video']) {
         const media = await getMediaBuffer(m, [kind]);
         if (!media) return;
         const buf = await makeSticker(media.buffer, {
-            pack: u.botname || 'MR Muavia Mini Bot MINI', author: u.ownername || 'MR Muavia Mini Bot Mini', ext: kind === 'video' ? 'mp4' : 'jpg',
+            pack: u.botname || 'QnMD MINI', author: u.ownername || 'QnMD Mini', ext: kind === 'video' ? 'mp4' : 'jpg',
         });
         await conn.sendMessage(from, { sticker: buf }, { quoted: mek });
     });

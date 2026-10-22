@@ -4,7 +4,7 @@ const config = require('../config');
 const { getText, getJson, getBuffer, tryEach } = require('../lib/util');
 
 const enc = encodeURIComponent;
-const SYSTEM = 'You are MR Muavia Mini Bot MINI, a friendly WhatsApp assistant. Reply in the same language as the user (Roman Urdu if they write Roman Urdu). Keep answers clear and concise.';
+const SYSTEM = 'You are QnMD MINI, a friendly WhatsApp assistant. Reply in the same language as the user (Roman Urdu if they write Roman Urdu). Keep answers clear and concise.';
 
 async function askAI(prompt, model = 'openai', system = SYSTEM) {
     return tryEach([

@@ -363,11 +363,6 @@ ${config.DESCRIPTION}`;
                 mentionedJid: [m.sender],
                 isForwarded: true,
                 forwardingScore: 999,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363401706347293@newsletter',
-                    newsletterName: config.BOT_NAME,
-                    serverMessageId: 1
-                }
             }
         }, { quoted: mek });
 

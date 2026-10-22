@@ -36,8 +36,6 @@ async (conn, mek, m, { from, args, q, reply }) => {
             videoUrl = vid.url;
         }
 
-        const MY_CHANNEL = "120363401706347293@newsletter";
-
         // Preview Message
         await conn.sendMessage(from, {
             image: { url: vid.thumbnail || vid.image },
@@ -45,11 +43,6 @@ async (conn, mek, m, { from, args, q, reply }) => {
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: MY_CHANNEL,
-                    newsletterName: "🦋⍣⃝🇰ʜᴀɴzada🕊", 
-                    serverMessageId: 143
-                }
             }
         }, { quoted: mek });
 
@@ -68,11 +61,6 @@ async (conn, mek, m, { from, args, q, reply }) => {
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: MY_CHANNEL,
-                    newsletterName: "🦋⍣⃝🇰ʜᴀɴzada🕊",
-                    serverMessageId: 143
-                }
             }
         }, { quoted: mek });
 

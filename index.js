@@ -1,5 +1,5 @@
 /* ==========================================================================
- *  👑 MR Muavia Mini Bot  —  Multi-user WhatsApp Bot  (Heroku + MongoDB ready)
+ *  👑 QnMD  —  Multi-user WhatsApp Bot  (Heroku + MongoDB ready)
  * --------------------------------------------------------------------------
  *  Kya karta hai:
  *   • Web page (/) par koi bhi apna number daal kar PAIR CODE le sakta hai
@@ -92,7 +92,7 @@ const OWNER_NUMBERS = String(config.OWNER_NUMBER || '')
  * ========================================================================== */
 const ICONS = { info: '📝', success: '✅', error: '❌', warning: '⚠️', debug: '🐛' };
 function log(message, type = 'info') {
-    console.log(`${ICONS[type] || '📝'} [MR Muavia Mini Bot] ${new Date().toISOString()}: ${message}`);
+    console.log(`${ICONS[type] || '📝'} [QnMD] ${new Date().toISOString()}: ${message}`);
 }
 
 /* ==========================================================================

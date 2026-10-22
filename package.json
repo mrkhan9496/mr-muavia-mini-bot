@@ -1,7 +1,7 @@
 {
   "name": "mr-muavia-mini-bot",
   "version": "2.0",
-  "description": "MR Muavia Mini Bot - WhatsApp Bot",
+  "description": "QnMD - WhatsApp Bot",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

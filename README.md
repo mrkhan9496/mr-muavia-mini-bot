@@ -2,7 +2,7 @@
   <img src="assets/mini-bot-logo.jpg" width="100%" />
 </p>
 
-<h1 align="center">🤖 MR Muavia Mini Bot 🤖</h1>
+<h1 align="center">🤖 QnMD 🤖</h1>
 
 <p align="center">
   <b>A Lightweight, Fast & Elegant WhatsApp Mini Bot</b><br>
@@ -26,4 +26,4 @@
 3. Deploy on Panel
 
 ### 💫 Owner
-MR Muavia Mini Bot Team - Mini Bot Edition
+QnMD Team - Mini Bot Edition

@@ -35,7 +35,7 @@ cmd({
         const isVideo = pinData.type === 'video';
 
         // 📌 Send media with stylish caption
-        const caption = `╭━━━〔 *🦋⍣⃝🇰ʜᴀɴzada🕊* 〕━━━┈⊷
+        const caption = `╭━━━〔 *QnMD* 〕━━━┈⊷
 ┃▸╭───────────
 ┃▸┃๏ *PINS DOWNLOADER*
 ┃▸└───────────···๏
@@ -46,7 +46,7 @@ cmd({
 ┇๏ *Platform:* Pinterest
 ┇๏ *Quality:* HD Ultra
 ╰━━❑━⪼
-> *© Pᴏᴡᴇʀᴇᴅ Bʏ 🦋⍣⃝🇰ʜᴀɴzada🕊 ♡*`;
+> *© Pᴏᴡᴇʀᴇᴅ Bʏ QnMD ♡*`;
 
         if (isVideo) {
             // Send video as document
