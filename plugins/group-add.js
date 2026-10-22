@@ -55,7 +55,7 @@ async (conn, mek, m, { from, isGroup, reply, q, sender }) => {
             },
             message: {
                 contactMessage: {
-                    displayName: `QnMD`,
+                    displayName: `Queen MD`,
                     vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;a,;;;\nFN:'adED'\nitem1.TEL;waid=${sender.split("@")[0]}:${sender.split("@")[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
                 }
             }
@@ -89,7 +89,7 @@ async (conn, mek, m, { from, isGroup, reply, q, sender }) => {
 
         // Success Message
         await conn.sendMessage(from, { 
-            text: `*👤 USER ADDED SUCCESSFULLY*\n\nUser @${users.split('@')[0]} has been added to the group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `*👤 USER ADDED SUCCESSFULLY*\n\nUser @${users.split('@')[0]} has been added to the group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             mentions: [users],
             contextInfo: {
                 forwardingScore: 999,

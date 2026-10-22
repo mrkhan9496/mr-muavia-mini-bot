@@ -1,5 +1,5 @@
 
-// QnMD — Config 
+// Queen MD — Config 
 
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -20,10 +20,10 @@ module.exports = {
     // ===========================================================
     PREFIX: process.env.PREFIX || '.',
     OWNER_NUMBER: process.env.OWNER_NUMBER || '923426637623', // Mettez votre numéro ici
-    BOT_NAME: "QnMD",
+    BOT_NAME: "Queen MD",
     OWNER_NAME: process.env.OWNER_NAME || 'MR Muavia',
-    DESCRIPTION: process.env.DESCRIPTION || '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD',
-    BOT_FOOTER: '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD',
+    DESCRIPTION: process.env.DESCRIPTION || '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD',
+    BOT_FOOTER: '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD',
     
     // Mode de travail : public, private, group, inbox
     WORK_TYPE: process.env.WORK_TYPE || "public", 

@@ -81,7 +81,7 @@ async (conn, mek, m, { from, isGroup, reply }) => {
         await conn.groupSettingUpdate(from, "announcement");
         
         await conn.sendMessage(from, { 
-            text: `*🔒 Group Muted Successfully*\n\nAb sirf admins hi is group mein message kar sakte hain.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `*🔒 Group Muted Successfully*\n\nAb sirf admins hi is group mein message kar sakte hain.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,
@@ -116,7 +116,7 @@ async (conn, mek, m, { from, isGroup, reply }) => {
         await conn.groupSettingUpdate(from, "not_announcement");
         
         await conn.sendMessage(from, { 
-            text: `*🔓 Group Unmuted Successfully*\n\nAb sabhi participants message kar sakte hain.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `*🔓 Group Unmuted Successfully*\n\nAb sabhi participants message kar sakte hain.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,

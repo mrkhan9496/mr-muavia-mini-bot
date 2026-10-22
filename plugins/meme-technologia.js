@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//           QnMD - UPSCALE AI (IMGUPSCALER)
+//           Queen MD - UPSCALE AI (IMGUPSCALER)
 //---------------------------------------------------------------------------
 //  🚀 ENHANCE IMAGE QUALITY 2X OR 4X USING AI
 //---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ cmd({
         // Send Result
         await conn.sendMessage(from, {
             image: { url: result.url },
-            caption: `✅ *AI UPSCALE COMPLETE*\n\n🔍 *Scale:* ${scale}x\n📦 *Size:* ${(result.size / 1024).toFixed(2)} KB\n\n*🚀 Powered by Queen MD*`,
+            caption: `✅ *AI UPSCALE COMPLETE*\n\n🔍 *Scale:* ${scale}x\n📦 *Size:* ${(result.size / 1024).toFixed(2)} KB\n\n*🚀 Powered by QnMD*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,

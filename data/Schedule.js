@@ -1,6 +1,6 @@
 /**
  * Schedule.js — MongoDB model for scheduled messages & reminders
- * QnMD
+ * Queen MD
  *
  * Features:
  * - Atomic job claiming via findOneAndUpdate (prevents race conditions)

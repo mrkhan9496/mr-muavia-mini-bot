@@ -105,7 +105,7 @@ async (conn, mek, m, { from, isGroup, reply }) => {
         
         // Stylish Success Message
         await conn.sendMessage(from, { 
-            text: `*🔓 Group Unmuted Successfully*\n\nNow all participants can send messages in this group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `*🔓 Group Unmuted Successfully*\n\nNow all participants can send messages in this group.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,

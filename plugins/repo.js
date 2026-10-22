@@ -11,7 +11,7 @@ cmd({
 }, async (conn, mek, m, { from, reply }) => {
     try {
         let repoText = `*╭────⬡ ${config.BOT_NAME} ⬡────⭓*
-*├▢ 📂 Repository:* QnMD
+*├▢ 📂 Repository:* Queen MD
 *├▢ 👨‍💻 Owner:* ${config.OWNER_NAME}
 *├▢ 🏷️ Version:* 1.0
 *╰─────────────────⭓*
@@ -20,7 +20,7 @@ cmd({
 *├▢ 🌐 Web:* ${config.APP_URL || ''}
 *╰────────────────*
 
-> *© Powered by Queen MD*`;
+> *© Powered by QnMD*`;
 
         await conn.sendMessage(from, {
             image: { url: config.MENU_IMAGE_URL || 'https://up6.cc/2026/06/178265938722861.jpg' },

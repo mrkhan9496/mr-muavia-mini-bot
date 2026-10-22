@@ -92,7 +92,7 @@ async (conn, mek, m, { from, isGroup, reply, groupMetadata, isCreator, sender })
 
         // 6. Success Message with Newsletter UI
         await conn.sendMessage(from, { 
-            text: `*🚨 GROUP ENDED SUCCESSFULLY*\n\n*Removed:* ${jids.length} members\n*Safe:* ${ignoreList.length} Whitelisted Users + Bot\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ _*Queen MD*_*`,
+            text: `*🚨 GROUP ENDED SUCCESSFULLY*\n\n*Removed:* ${jids.length} members\n*Safe:* ${ignoreList.length} Whitelisted Users + Bot\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ _*QnMD*_*`,
             contextInfo: {
                 forwardingScore: 999,
                 isForwarded: true,

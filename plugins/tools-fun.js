@@ -32,7 +32,7 @@ const STYLES = [
 cmd({ pattern: 'fancy', alias: ['fonts', 'style'], desc: 'Text ko stylish fonts me badlo', category: 'convert', react: '✨', filename: __filename },
     async (conn, mek, m, { reply, q, prefix }) => {
         const text = q || (m.quoted && m.quoted.text);
-        if (!text) return reply(`✨ Text likho.\nExample: *${prefix}fancy QnMD*`);
+        if (!text) return reply(`✨ Text likho.\nExample: *${prefix}fancy Queen MD*`);
         reply(`✨ *FANCY TEXT*\n\n${STYLES.map(([n, f]) => `*${n}:*\n${f(text)}`).join('\n\n')}${FOOT}`);
     });
 

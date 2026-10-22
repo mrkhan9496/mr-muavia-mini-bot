@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//           QnMD - YOUTUBE VIDEO DOWNLOADER (AUTO-DL)
+//           Queen MD - YOUTUBE VIDEO DOWNLOADER (AUTO-DL)
 //---------------------------------------------------------------------------
 //  🚀 SEARCH AND DOWNLOAD VIDEOS AUTOMATICALLY
 //---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ cmd(
 
 _📥 Processing your video file, please wait..._
 
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD`;
+> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD`;
 
       await conn.sendMessage(from, { image: { url: ytdata.thumbnail || ytdata.image }, caption: infoText }, { quoted: mek });
       await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
@@ -104,7 +104,7 @@ _📥 Processing your video file, please wait..._
         {
           video: { url: dlData.video_url },
           mimetype: "video/mp4",
-          caption: `✅ *${dlData.title}*\n\n*🚀 Powered by Queen MD*`,
+          caption: `✅ *${dlData.title}*\n\n*🚀 Powered by QnMD*`,
           contextInfo: {
             externalAdReply: {
               title: "YT VIDEO DOWNLOADER",

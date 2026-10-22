@@ -50,7 +50,7 @@ cmd({
                 from,
                 { 
                     video: { url: randomVideo.hd },
-                    caption: `- 🌺 *Islamic Status Video*\n> *© Powered by Queen MD*`
+                    caption: `- 🌺 *Islamic Status Video*\n> *© Powered by QnMD*`
                 },
                 { quoted: mek }
             );

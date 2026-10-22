@@ -2,7 +2,7 @@
   <img src="assets/mini-bot-logo.jpg" width="100%" />
 </p>
 
-<h1 align="center">🤖 QnMD 🤖</h1>
+<h1 align="center">🤖 Queen MD 🤖</h1>
 
 <p align="center">
   <b>A Lightweight, Fast & Elegant WhatsApp Mini Bot</b><br>
@@ -26,4 +26,4 @@
 3. Deploy on Panel
 
 ### 💫 Owner
-QnMD Team - Mini Bot Edition
+Queen MD Team - Mini Bot Edition

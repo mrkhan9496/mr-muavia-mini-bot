@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//           QnMD - FACEBOOK VIDEO DOWNLOADER (FSAVER)
+//           Queen MD - FACEBOOK VIDEO DOWNLOADER (FSAVER)
 //---------------------------------------------------------------------------
 //  🚀 HIGH-SPEED FB VIDEO DOWNLOADS (LID & NEWSLETTER SUPPORT)
 //---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ cmd({
 ├─ 📂 *Format:* MP4 (HD/SD)
 ╰───────────────────🚀
 
-*🚀 Powered by Queen MD*`;
+*🚀 Powered by QnMD*`;
 
         // 2. Sending Video with Newsletter Context
         await conn.sendMessage(from, { 

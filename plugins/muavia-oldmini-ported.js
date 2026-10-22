@@ -1,5 +1,5 @@
 /**
- * muavia-oldmini-ported.js — QnMD
+ * muavia-oldmini-ported.js — Queen MD
  * Old Mini Bot (muavia-mini-bot) se ported commands.
  * Source: mrkhan9496/muavia-mini-bot (Old Mini Bot ONLY - NOT MD Bot)
  */
@@ -27,7 +27,7 @@ async (conn, mek, m, { from, reply, args, q }) => {
         const res = await axios.get(url, { responseType: 'arraybuffer', timeout: 20000 });
         await conn.sendMessage(from, {
             image: Buffer.from(res.data),
-            caption: `🔳 *QR Code:*\n${text.slice(0, 200)}\n\n> *© Powered by Queen MD*`
+            caption: `🔳 *QR Code:*\n${text.slice(0, 200)}\n\n> *© Powered by QnMD*`
         }, { quoted: mek });
     } catch (e) {
         await reply('❌ QR banane mein error: ' + e.message);
@@ -75,7 +75,7 @@ async (conn, mek, m, { from, reply, q, sender }) => {
     }
     try {
         await conn.sendMessage(OWNER + '@s.whatsapp.net', {
-            text: `📩 *New Feedback*\n\n👤 From: ${sender}\n💬 ${text.slice(0, 500)}\n\n> *© Powered by Queen MD*`
+            text: `📩 *New Feedback*\n\n👤 From: ${sender}\n💬 ${text.slice(0, 500)}\n\n> *© Powered by QnMD*`
         });
         await reply('✅ Feedback bhej diya gaya! Shukriya. 🙏');
     } catch (e) {
@@ -115,7 +115,7 @@ async (conn, mek, m, { from, reply }) => {
         await execFileAsync('ffmpeg', ['-v', 'error', '-y', '-i', inp, out]);
         await conn.sendMessage(from, {
             image: fs.readFileSync(out),
-            caption: '> *© Powered by Queen MD*'
+            caption: '> *© Powered by QnMD*'
         }, { quoted: mek });
     } catch (e) {
         await reply('❌ Convert mein error: ' + e.message);

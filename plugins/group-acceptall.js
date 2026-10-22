@@ -69,7 +69,7 @@ async (conn, mek, m, { from, isGroup, reply, sender }) => {
         requests.forEach((user, i) => {
             text += `${i + 1}. @${user.jid.split('@')[0]}\n`;
         });
-        text += `\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`;
+        text += `\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`;
 
         await conn.sendMessage(from, { 
             text: text, 
@@ -106,7 +106,7 @@ async (conn, mek, m, { from, isGroup, reply, sender }) => {
         await conn.groupRequestParticipantsUpdate(from, jids, "approve");
         
         await conn.sendMessage(from, { 
-            text: `✅ *APPROVED:* Successfully accepted ${requests.length} members.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `✅ *APPROVED:* Successfully accepted ${requests.length} members.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             contextInfo: newsletterContext 
         }, { quoted: mek });
 
@@ -139,7 +139,7 @@ async (conn, mek, m, { from, isGroup, reply, sender }) => {
         await conn.groupRequestParticipantsUpdate(from, jids, "reject");
         
         await conn.sendMessage(from, { 
-            text: `❌ *REJECTED:* Successfully rejected ${requests.length} members.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Queen MD*`,
+            text: `❌ *REJECTED:* Successfully rejected ${requests.length} members.\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QnMD*`,
             contextInfo: newsletterContext 
         }, { quoted: mek });
 

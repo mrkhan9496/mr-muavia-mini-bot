@@ -1,4 +1,4 @@
-// QnMD — REALITY commands (.mard, .sad, .baap)
+// Queen MD — REALITY commands (.mard, .sad, .baap)
 // Migrated from old muavia-mini-bot. Sends random video from assets folders.
 const { cmd } = require('../inconnuboy');
 const fs = require('fs');
@@ -27,15 +27,15 @@ async function sendRandomVideo(conn, mek, from, subdir, caption) {
 
 cmd({ pattern: "mard", desc: "Random MARD video", category: "reality", react: "🔥" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'mard', '🔥 *MARD* 🔥\n> © Powered by Queen MD');
+    await sendRandomVideo(conn, mek, from, 'mard', '🔥 *MARD* 🔥\n> © Powered by QnMD');
 });
 
 cmd({ pattern: "sad", desc: "Random SAD video", category: "reality", react: "🥀" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'sad', '🥀 *SAD* 🥀\n> © Powered by Queen MD');
+    await sendRandomVideo(conn, mek, from, 'sad', '🥀 *SAD* 🥀\n> © Powered by QnMD');
 });
 
 cmd({ pattern: "baap", desc: "Random BAAP video", category: "reality", react: "👑" },
 async (conn, mek, m, { from }) => {
-    await sendRandomVideo(conn, mek, from, 'baap', '👑 *BAAP* 👑\n> © Powered by Queen MD');
+    await sendRandomVideo(conn, mek, from, 'baap', '👑 *BAAP* 👑\n> © Powered by QnMD');
 });

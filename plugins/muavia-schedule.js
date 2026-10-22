@@ -1,5 +1,5 @@
 /**
- * muavia-schedule.js — Scheduler commands for QnMD
+ * muavia-schedule.js — Scheduler commands for Queen MD
  * .schedule, .schedules, .cancel, .cancelall, .remind, .todo
  *
  * Owner-only. Uses MongoDB for persistence.
@@ -9,7 +9,7 @@ const { cmd } = require('../inconnuboy');
 const { Schedule } = require('../data/Schedule');
 const { parseDateTime, fmtKarachi } = require('../lib/miniScheduler');
 
-const FOOTER = '\n\n> *© Powered by Queen MD*';
+const FOOTER = '\n\n> *© Powered by QnMD*';
 
 function genJobId() {
     return `job-${Date.now()}-${Math.random().toString(36).slice(0, 6)}`;
