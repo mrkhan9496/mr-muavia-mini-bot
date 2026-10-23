@@ -1,116 +1,71 @@
 //---------------------------------------------------------------------------
-//           Queen MD - YOUTUBE VIDEO DOWNLOADER (AUTO-DL)
+//           Queen MD - YOUTUBE VIDEO DOWNLOADER
 //---------------------------------------------------------------------------
-//  🚀 SEARCH AND DOWNLOAD VIDEOS AUTOMATICALLY
+//  🚀 Engine: lib/ytVideo.js (2026-10-23 upgrade)
+//  Search: YOUTUBE_API_KEY ho to official YouTube Data API v3 (cached),
+//  warna yt-dlp search. Download: yt-dlp se asal MP4 file (audio+video),
+//  size cap + verify ke baad. Random community APIs (Jawad-Tech) KHATAM —
+//  download na ho to wajah + YouTube link jata hai, jhooti kamyabi nahi.
 //---------------------------------------------------------------------------
 
 const { cmd } = require("../inconnuboy");
-const yts = require("yt-search");
-const axios = require("axios");
+const fs = require("fs");
+const ytVideo = require("../lib/ytVideo");
 
-// Simple In-memory cache
-const cache = new Map();
-
-/**
- * Normalizes YouTube URLs to a standard format
- */
-function normalizeYouTubeUrl(url) {
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/.*[?&]v=)([a-zA-Z0-9_-]{11})/);
-  return match ? `https://youtube.com/watch?v=${match[1]}` : null;
-}
-
-/**
- * Core Data Fetching Logic using Jawad-Tech API
- */
-async function fetchDownloadData(url, retries = 2) {
-  try {
-    const apiUrl = `https://jawad-tech.vercel.app/download/ytdl?url=${encodeURIComponent(url)}`;
-    const response = await axios.get(apiUrl, { timeout: 20000 });
-    const data = response.data;
-
-    if (data.status === true && data.result) {
-      return {
-        video_url: data.result.mp4,
-        title: data.result.title || "YouTube Video",
-      };
-    }
-    throw new Error("API failed to return download link.");
-  } catch (error) {
-    if (retries > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return fetchDownloadData(url, retries - 1);
-    }
-    return null;
-  }
-}
-
-// --- MAIN COMMAND: VIDEO ---
+ytVideo.probeYtDlp().catch(() => {});
 
 cmd(
   {
     pattern: "video",
     alias: ["ytmp4", "vdl"],
     react: "🎥",
-    desc: "Search and download high-quality videos from YouTube.",
+    desc: "Search and download videos from YouTube (yt-dlp engine).",
     category: "download",
     filename: __filename,
   },
   async (conn, mek, m, { from, q, reply, prefix, command }) => {
+    let dl = null;
     try {
       if (!q) return reply(`🎥 *Video Downloader*\n\nUsage: \`${prefix + command} <name or link>\`\nExample: \`${prefix + command} perfect ed sheeran\``);
 
       await conn.sendMessage(from, { react: { text: "🔍", key: mek.key } });
 
-      // Step 1: Search for the video
-      const url = normalizeYouTubeUrl(q);
-      let ytdata;
+      // Step 1: Pehchan — seedha link ya naam se search
+      const id = ytVideo.parseYouTubeId(q);
+      const meta = id ? await ytVideo.getVideoMeta(id) : await ytVideo.searchTopVideo(q);
 
-      if (url) {
-        const searchResults = await yts({ videoId: q.split('v=')[1]?.split('&')[0] || q.split('/').pop() });
-        ytdata = searchResults;
-      } else {
-        const searchResults = await yts(q);
-        if (!searchResults.videos.length) return reply("❌ No videos found for your query!");
-        ytdata = searchResults.videos[0];
-      }
-
-      // Step 2: Send info message
-      const infoText = `
-🎥 *YT VIDEO DOWNLOADER* 🎥
-
-📌 *Title:* ${ytdata.title}
-🎬 *Channel:* ${ytdata.author?.name || 'Unknown'}
-⏱️ *Duration:* ${ytdata.timestamp}
-👁️ *Views:* ${ytdata.views.toLocaleString()}
-
-_📥 Processing your video file, please wait..._
-
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`;
-
-      await conn.sendMessage(from, { image: { url: ytdata.thumbnail || ytdata.image }, caption: infoText }, { quoted: mek });
+      // Step 2: Info card
+      const infoText =
+        `\n🎥 *YT VIDEO DOWNLOADER* 🎥\n\n` +
+        `📌 *Title:* ${meta.title}\n` +
+        (meta.channel ? `🎬 *Channel:* ${meta.channel}\n` : '') +
+        `⏱️ *Duration:* ${meta.durationText}\n` +
+        (meta.views ? `👁️ *Views:* ${Number(meta.views).toLocaleString()}\n` : '') +
+        `\n_📥 Processing your video file, please wait..._\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`;
+      await conn.sendMessage(from, { image: { url: meta.thumbnail }, caption: infoText }, { quoted: mek });
       await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
-      // Step 3: Fetch download link from API
-      const dlData = await fetchDownloadData(ytdata.url);
-
-      if (!dlData || !dlData.video_url) {
+      // Step 3: Live stream download nahi hoti
+      if (meta.isLive) {
         await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
-        return reply("❌ Download link could not be generated. Please try again later.");
+        return reply(`🔴 Ye video LIVE hai — live stream download nahi hoti.\nYahan dekho: ${meta.url}`);
       }
 
-      // Step 4: Send the Video file
+      // Step 4: Asal file download + verify, phir bhejo
+      dl = await ytVideo.downloadToFile(meta.id);
+      const buf = fs.readFileSync(dl.path);
       await conn.sendMessage(
         from,
         {
-          video: { url: dlData.video_url },
+          video: buf,
           mimetype: "video/mp4",
-          caption: `✅ *${dlData.title}*\n\n*🚀 Powered by QUEEN MD 👑*`,
+          caption: `✅ *${meta.title}*\n\n*🚀 Powered by QUEEN MD 👑*`,
           contextInfo: {
             externalAdReply: {
               title: "YT VIDEO DOWNLOADER",
-              body: dlData.title,
-              thumbnailUrl: ytdata.thumbnail || ytdata.image,
-              sourceUrl: ytdata.url,
+              body: meta.title,
+              thumbnailUrl: meta.thumbnail,
+              sourceUrl: meta.url,
               mediaType: 2,
               renderLargerThumbnail: false
             }
@@ -122,9 +77,15 @@ _📥 Processing your video file, please wait..._
       await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
 
     } catch (e) {
-      console.error("Video DL Error:", e);
-      await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
+      console.error("Video DL Error:", e && e.code, e && e.message);
+      await conn.sendMessage(from, { react: { text: "❌", key: mek.key } }).catch(() => {});
+      if (e instanceof ytVideo.YtError) {
+        const id = ytVideo.parseYouTubeId(q || '');
+        return reply(`❌ ${e.message}` + (id ? `\n\n🔗 YouTube par dekho: https://www.youtube.com/watch?v=${id}` : ''));
+      }
       reply(`⚠️ *Error:* ${e.message || "Something went wrong."}`);
+    } finally {
+      if (dl) ytVideo.cleanupDownload(dl);
     }
   }
 );

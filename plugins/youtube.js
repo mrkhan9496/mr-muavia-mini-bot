@@ -1,7 +1,9 @@
 // YouTube + Spotify commands: song, video, play2, yts, drama, spotify
 const { cmd } = require('../inconnuboy');
 const config = require('../config');
+const fs = require('fs');
 const { findVideo, ytDownload, sendRemote, yts } = require('../lib/yt');
+const ytVideo = require('../lib/ytVideo');
 const { getJson } = require('../lib/util');
 
 const footer = config.BOT_FOOTER;
@@ -28,12 +30,34 @@ async function audioFlow(conn, mek, from, q, reply, label = '🎵 MUSIC FOUND') 
 }
 
 async function videoFlow(conn, mek, from, q, reply, label = '🎬 VIDEO FOUND') {
-    const v = await findVideo(q);
-    if (!v) return reply('❌ Kuch nahi mila. Naam ya link check karo.');
-    await infoCard(conn, from, mek, v, label);
-    const d = await ytDownload(v.url, 'mp4');
-    await sendRemote(conn, from, 'video', d.url, { mimetype: 'video/mp4', caption: `✅ *${v.title}*\n\n> ${footer}` }, mek);
-    await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
+    // 2026-10-23: engine = lib/ytVideo.js (official API search / yt-dlp file
+    // download + verify). Purani random APIs (.video ke liye) KHATAM.
+    let v;
+    try {
+        const id = ytVideo.parseYouTubeId(q);
+        v = id ? await ytVideo.getVideoMeta(id) : await ytVideo.searchTopVideo(q);
+    } catch (e) {
+        return reply('❌ ' + e.message);
+    }
+    await infoCard(conn, from, mek, {
+        title: v.title, timestamp: v.durationText, views: v.views || 0,
+        url: v.url, thumbnail: v.thumbnail,
+    }, label);
+    if (v.isLive) {
+        return reply(`🔴 Ye video LIVE hai — live stream download nahi hoti.\nYahan dekho: ${v.url}`);
+    }
+    let dl = null;
+    try {
+        dl = await ytVideo.downloadToFile(v.id);
+        const buf = fs.readFileSync(dl.path);
+        await conn.sendMessage(from, { video: buf, mimetype: 'video/mp4', caption: `✅ *${v.title}*\n\n> ${footer}` }, { quoted: mek });
+        await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
+    } catch (e) {
+        // Jhooti kamyabi nahi — wajah + working link
+        return reply(`❌ ${e.message}\n\n🔗 YouTube par dekho: ${v.url}`);
+    } finally {
+        if (dl) ytVideo.cleanupDownload(dl);
+    }
 }
 
 cmd({ pattern: 'song', alias: ['play', 'ytmp3', 'audio'], desc: 'YouTube se gana download', category: 'download', react: '🎧', filename: __filename },
