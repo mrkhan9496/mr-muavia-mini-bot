@@ -9,11 +9,10 @@ const FOOT = `\n\n> ${config.BOT_FOOTER}`;
 const need = (reply, what, ex) => reply(`❌ ${what} do.\nExample: *${ex}*`);
 
 /* ---------------- Facebook ---------------- */
+// 2026-10-23 health report: vreden (poora host DEAD), agatz (anti-bot
+// challenge), giftedtech (DEAD) bahar — sirf siputzx zinda hai.
 const FB_APIS = [
-    'https://api.vreden.my.id/api/fbdl?url=',
     'https://api.siputzx.my.id/api/d/facebook?url=',
-    'https://api.agatz.xyz/api/facebook?url=',
-    (u) => `https://api.giftedtech.my.id/api/download/facebook?apikey=gifted&url=${enc(u)}`,
 ];
 async function fbFlow(conn, mek, from, q, reply, apis) {
     if (!isUrl(q) || !/facebook\.com|fb\.watch|fb\.com/i.test(q)) return reply('❌ Sahi Facebook video link do.');
@@ -48,9 +47,9 @@ async function tikwm(url, hd) {
 }
 async function ttFlow(conn, mek, from, q, reply, hd) {
     if (!/tiktok\.com|vm\.tiktok|vt\.tiktok/i.test(q)) return reply('❌ Sahi TikTok video link do.');
+    // 2026-10-23: dusra step (vreden + siputzx tiktok) dono DEAD thay — bahar
     const r = await tryEach([
         () => tikwm(q, hd),
-        async () => { const g = await genericDl(q, ['https://api.vreden.my.id/api/tiktok?url=', 'https://api.siputzx.my.id/api/d/tiktok?url=']); return { url: g.url }; },
     ]);
     await sendAuto(conn, from, r.url, `🎵 *TikTok*${r.title ? '\n📝 ' + r.title : ''}${r.author ? '\n👤 ' + r.author : ''}${FOOT}`, mek);
 }
@@ -90,7 +89,10 @@ async function igFlow(conn, mek, from, q, reply, apis) {
     }
     for (const u of [...new Set(r.urls || [r.url])].slice(0, 4)) await sendAuto(conn, from, u, `📸 *Instagram*${FOOT}`, mek);
 }
-const IG_APIS = ['https://api.vreden.my.id/api/igdownload?url=', 'https://api.siputzx.my.id/api/d/igdl?url=', 'https://api.agatz.xyz/api/instagram?url='];
+// 2026-10-23: teeno purane IG endpoints DEAD/BLOCKED (vreden host dead,
+// siputzx route 404, agatz anti-bot) — list khaali: flow seedha
+// ruhend-scraper wale fallback par jata hai jo jawab deta hai.
+const IG_APIS = [];
 cmd({ pattern: 'insta', alias: ['instagram', 'ig', 'igdl'], desc: 'Instagram reel/post download', category: 'download', react: '📸', filename: __filename },
     async (conn, mek, m, { from, q, reply, prefix }) => {
         if (!q) return need(reply, 'Instagram link', `${prefix}insta https://instagram.com/reel/xxxx`);
@@ -109,13 +111,28 @@ cmd({ pattern: 'twitter', alias: ['x', 'twdl', 'xdl'], desc: 'Twitter/X video do
         const link = q.trim();
         const mt = link.match(/(?:twitter|x)\.com\/([^/]+\/status\/\d+)/i);
         if (!mt) return reply('❌ Sahi Twitter/X post link do.');
+        // 2026-10-23: vxtwitter + vreden + siputzx twitter teeno DEAD —
+        // ab fxtwitter (FixTweet) API, jawab ke shapes ke liye mehfooz parse.
         const r = await tryEach([
             async () => {
-                const d = await getJson(`https://api.vxtwitter.com/${mt[1]}`);
-                const med = (d.media_extended || []).find((x) => x.type === 'video' || x.type === 'gif') || (d.media_extended || [])[0];
-                return med ? { url: med.url, text: d.text } : null;
+                const d = await getJson(`https://api.fxtwitter.com/${mt[1]}`);
+                const t = d && d.tweet;
+                if (!t) return null;
+                let best = null;
+                for (const v of ((t.media && t.media.videos) || [])) {
+                    const cands = [];
+                    if (v.url && /video\.twimg\.com|\.mp4/.test(v.url)) cands.push({ url: v.url, bitrate: 0 });
+                    for (const f of (v.formats || v.variants || [])) {
+                        if (f && f.url && (/video\/mp4/.test(f.content_type || '') || /\.mp4/.test(f.url))) cands.push({ url: f.url, bitrate: f.bitrate || 0 });
+                    }
+                    cands.sort((a, b) => b.bitrate - a.bitrate);
+                    if (cands.length && (!best || cands[0].bitrate > best.bitrate)) best = cands[0];
+                }
+                const photo = t.media && t.media.photos && t.media.photos[0];
+                if (best) return { url: best.url, text: t.text };
+                if (photo) return { url: photo.url, text: t.text };
+                return null;
             },
-            () => genericDl(link, ['https://api.vreden.my.id/api/twitter?url=', 'https://api.siputzx.my.id/api/d/twitter?url=']),
         ]);
         await sendAuto(conn, from, r.url, `🐦 *Twitter/X*${r.text ? '\n' + r.text.slice(0, 200) : ''}${FOOT}`, mek);
     });
@@ -134,11 +151,7 @@ cmd({ pattern: 'mediafire', alias: ['mf', 'mfire'], desc: 'MediaFire file downlo
                 const size = (html.match(/Download \(([^)]+)\)/) || [])[1];
                 return { url: dl, name, size };
             },
-            async () => {
-                const d = await getJson(`https://api.vreden.my.id/api/mediafiredl?url=${enc(link)}`);
-                const u = mediaUrls(d)[0];
-                return u ? { url: u, name: (d.result && d.result[0] && d.result[0].nama) || 'file' } : null;
-            },
+            // vreden mediafiredl REMOVED 2026-10-23: host DEAD
         ]);
         await reply(`🔥 *MediaFire*\n📄 ${r.name}${r.size ? '\n📦 ' + r.size : ''}\n\n⏳ File bhej raha hun...`);
         await conn.sendMessage(from, { document: { url: r.url }, fileName: r.name, mimetype: 'application/octet-stream', caption: FOOT.trim() }, { quoted: mek });
@@ -242,7 +255,7 @@ cmd({ pattern: 'pinterest', alias: ['pin', 'pindl'], desc: 'Pinterest link downl
     async (conn, mek, m, { from, q, reply, prefix }) => {
         if (!q) return need(reply, 'Pinterest link ya search naam', `${prefix}pinterest cute cats`);
         if (/pinterest\.|pin\.it/i.test(q)) {
-            const r = await genericDl(q.trim(), ['https://api.vreden.my.id/api/pinterest?url=', 'https://api.siputzx.my.id/api/d/pinterest?url=']);
+            const r = await genericDl(q.trim(), ['https://jawad-tech.vercel.app/download/pinterest?url=']); // 2026-10-23: vreden+siputzx DEAD
             return sendAuto(conn, from, r.url, `📌 *Pinterest*${FOOT}`, mek);
         }
         await pinFlow(conn, mek, from, q, reply);

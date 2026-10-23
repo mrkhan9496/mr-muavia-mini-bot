@@ -1,76 +1,66 @@
-// ✅ Coded by JawadTechX for KHAN MD
-// ⚙️ API: https://jawad-tech.vercel.app/download/ytdl?url=
+//---------------------------------------------------------------------------
+//           Queen MD - DRAMA / EPISODE DOWNLOADER
+//---------------------------------------------------------------------------
+//  🚀 Engine: lib/ytVideo.js (2026-10-23) — wahi jo .video ka hai.
+//  Pehle ye command sirf Jawad-Tech API par tha jo DEAD hai (HTTP 500);
+//  ab asal file yt-dlp/cobalt engine se aati hai, document bana kar.
+//---------------------------------------------------------------------------
 
 const { cmd } = require('../inconnuboy');
-const yts = require('yt-search');
-const axios = require('axios');
+const fs = require('fs');
+const ytVideo = require('../lib/ytVideo');
 
 cmd({
     pattern: "drama",
-    alias: ["ep", "episode"],
-    desc: "Download YouTube videos as document (via Drkamran API)",
+    alias: ["ep", "episode", "darama"],
+    desc: "Download drama episodes / YouTube videos as document.",
     category: "download",
     react: "📺",
     filename: __filename
-}, async (conn, mek, m, { from, q, reply }) => {
+}, async (conn, mek, m, { from, q, reply, prefix, command }) => {
+    let dl = null;
     try {
-        if (!q) return await reply("🎥 Please provide a YouTube video name or URL!\n\nExample: `.drama kabhi main kabhi tum ep5`");
+        if (!q) return reply(`📺 *Drama Downloader*\n\nUsage: \`${prefix + command} <name or link>\`\nExample: \`${prefix + command} kabhi main kabhi tum ep5\``);
 
-        let url = q;
-        let videoInfo = null;
+        await conn.sendMessage(from, { react: { text: "🔍", key: mek.key } });
 
-        // 🔍 Detect URL or Search by Title
-        if (q.startsWith('http://') || q.startsWith('https://')) {
-            if (!q.includes("youtube.com") && !q.includes("youtu.be")) {
-                return await reply("❌ Please provide a valid YouTube URL!");
-            }
-            const videoId = getVideoId(q);
-            if (!videoId) return await reply("❌ Invalid YouTube URL!");
-            const searchFromUrl = await yts({ videoId });
-            videoInfo = searchFromUrl;
-        } else {
-            const search = await yts(q);
-            videoInfo = search.videos[0];
-            if (!videoInfo) return await reply("❌ No video results found!");
-            url = videoInfo.url;
+        const id = ytVideo.parseYouTubeId(q);
+        const meta = id ? await ytVideo.getVideoMeta(id) : await ytVideo.searchTopVideo(q);
+
+        const infoText =
+            `\n📺 *DRAMA DOWNLOADER* 📺\n\n` +
+            `🎞️ *Title:* ${meta.title}\n` +
+            (meta.channel ? `📺 *Channel:* ${meta.channel}\n` : '') +
+            `⏱️ *Duration:* ${meta.durationText}\n` +
+            `\n_📥 Episode file tayyar ho rahi hai..._\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`;
+        await conn.sendMessage(from, { image: { url: meta.thumbnail }, caption: infoText }, { quoted: mek });
+        await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
+
+        if (meta.isLive) {
+            await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
+            return reply(`🔴 Ye LIVE hai — live stream download nahi hoti.\nYahan dekho: ${meta.url}`);
         }
 
-        // 🎯 Extract video ID
-        function getVideoId(url) {
-            const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-            return match ? match[1] : null;
-        }
-
-        // 🖼️ Send thumbnail preview
+        dl = await ytVideo.downloadToFile(meta.id);
+        const buf = fs.readFileSync(dl.path);
+        const safeName = String(meta.title || 'drama').replace(/[\\/:*?"<>|]/g, '').slice(0, 80).trim() || 'drama';
         await conn.sendMessage(from, {
-            image: { url: videoInfo.thumbnail },
-            caption: `*🎬 DRAMA DOWNLOADER*\n\n🎞️ *Title:* ${videoInfo.title}\n📺 *Channel:* ${videoInfo.author.name}\n🕒 *Duration:* ${videoInfo.timestamp}\n\n*Status:* Download Drama...\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑*`
-        }, { quoted: mek });
-
-        // ⚙️ Fetch from JawadTech API
-        const apiUrl = `https://jawad-tech.vercel.app/download/ytdl?url=${encodeURIComponent(url)}`;
-        const { data } = await axios.get(apiUrl);
-
-        if (!data?.status || !data?.result?.mp4) {
-            return await reply("❌ Failed to fetch download link! Please try again later.");
-        }
-
-        const vid = data.result;
-
-        // 📦 Send as document (.mp4)
-        await conn.sendMessage(from, {
-            document: { url: vid.mp4 },
-            fileName: `${vid.title}.mp4`,
+            document: buf,
+            fileName: `${safeName}.mp4`,
             mimetype: 'video/mp4',
-            caption: `🎬 *${vid.title}*\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑*`
+            caption: `🎬 *${meta.title}*\n\n*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ QUEEN MD 👑`
         }, { quoted: mek });
 
-        // ✅ React success
-        await conn.sendMessage(from, { react: { text: '✅', key: m.key } });
-
+        await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
     } catch (e) {
-        console.error("❌ Error in .drama command:", e);
-        await reply("⚠️ Something went wrong! Try again later.");
-        await conn.sendMessage(from, { react: { text: '❌', key: m.key } });
+        console.error("Drama DL Error:", e && e.code, e && e.message);
+        await conn.sendMessage(from, { react: { text: "❌", key: mek.key } }).catch(() => {});
+        if (e instanceof ytVideo.YtError) {
+            const vid = ytVideo.parseYouTubeId(q || '');
+            return reply(`❌ ${e.message}` + (vid ? `\n\n🔗 YouTube par dekho: https://www.youtube.com/watch?v=${vid}` : ''));
+        }
+        reply(`⚠️ *Error:* ${e.message || "Something went wrong."}`);
+    } finally {
+        if (dl) ytVideo.cleanupDownload(dl);
     }
 });

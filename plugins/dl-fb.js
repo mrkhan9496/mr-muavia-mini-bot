@@ -1,12 +1,12 @@
 //---------------------------------------------------------------------------
-//           Queen MD - FACEBOOK VIDEO DOWNLOADER (FSAVER)
+//           Queen MD - FACEBOOK VIDEO DOWNLOADER
 //---------------------------------------------------------------------------
 //  🚀 HIGH-SPEED FB VIDEO DOWNLOADS (LID & NEWSLETTER SUPPORT)
 //---------------------------------------------------------------------------
 
 const { cmd } = require('../inconnuboy');
 const axios = require('axios');
-const cheerio = require('cheerio');
+const { genericDl, mediaUrls } = require('../lib/dl');
 const config = require('../config');
 
 // Newsletter Context for professional look
@@ -16,38 +16,26 @@ const newsletterContext = {
 };
 
 /**
- * FSaver Scraper Logic
+ * Facebook provider — 2026-10-23: fsaver.net scrape khatam ho gaya tha
+ * (302 redirect); ab siputzx API + ruhend-scraper fallback.
  */
 const FSaver = {
-    config: {
-        base: 'https://fsaver.net',
-        agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
-    },
 
     download: async (videoUrl) => {
+        // 2026-10-23: fsaver.net ka scrape contract khatam (ab 302 redirect
+        // deta hai) — asal providers: siputzx (zinda, verified) phir
+        // ruhend-scraper fallback.
         try {
-            const fetchUrl = `${FSaver.config.base}/download/?url=${encodeURIComponent(videoUrl)}`;
-            
-            const { data } = await axios.get(fetchUrl, {
-                headers: {
-                    "Upgrade-Insecure-Requests": "1",
-                    "User-Agent": FSaver.config.agent,
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-                    "Referer": "https://fsaver.net/"
-                },
-                timeout: 15000
-            });
-
-            const $ = cheerio.load(data);
-            const videoSrc = $('.video__item').attr('src');
-
-            if (!videoSrc) return null;
-
-            return videoSrc.startsWith('http') ? videoSrc : FSaver.config.base + videoSrc;
-        } catch (err) {
-            console.error("FSaver Error:", err.message);
-            return null;
-        }
+            const r = await genericDl(videoUrl, ['https://api.siputzx.my.id/api/d/facebook?url=']);
+            if (r && r.url) return r.url;
+        } catch (_) {}
+        try {
+            const rs = require('ruhend-scraper');
+            const d = rs.fbdl ? await rs.fbdl(videoUrl) : null;
+            const urls = d ? mediaUrls(d) : [];
+            if (urls.length) return urls[0];
+        } catch (_) {}
+        return null;
     }
 };
 
