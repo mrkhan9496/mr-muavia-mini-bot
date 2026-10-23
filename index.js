@@ -177,7 +177,10 @@ async function getCfg(number) {
     const hit = cfgCache.get(number);
     if (hit && Date.now() - hit.at < SETTINGS.CFG_CACHE_MS) return hit.value;
     let value = {};
-    try { value = (await getUserConfigFromMongoDB(number)) || {}; } catch (_) {}
+    // 2026-10-23 fix: behaviors ko MERGED config do (DB user config +
+    // botSettings extra). Toggles botSettings mein likhte hain — sirf DB
+    // config parhne se 'ON ho gaya lekin kaam nahi' wali kharabi thi.
+    try { value = (await getMerged(number)) || {}; } catch (_) {}
     cfgCache.set(number, { at: Date.now(), value });
     return value;
 }
@@ -460,6 +463,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
                 clearTimeout(session.timer);
                 retryCount.delete(number);
                 log(`Connected: ${number}`, 'success');
+                try { const oc = await getCfg(number); if (oc.ALWAYS_ONLINE === 'true') await conn.sendPresenceUpdate('available').catch(() => {}); } catch (_) {}
                 try {
                     const known = (await getAllNumbersFromMongoDB()).includes(number);
                     await addNumberToMongoDB(number);
@@ -517,7 +521,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
         });
 
         conn.ev.on('group-participants.update', async (update) => {
-            try { await groupEvents(conn, update); } catch (e) { log(`groupEvents error: ${e.message}`, 'error'); }
+            try { await groupEvents(conn, update, number); } catch (e) { log(`groupEvents error: ${e.message}`, 'error'); }
         });
 
         conn.ev.on('messages.upsert', (upsert) => {
@@ -723,6 +727,14 @@ async function processMessage(conn, number, mek) {
     /* ---------- Presence ---------- */
     if (userConfig.AUTO_TYPING === 'true') conn.sendPresenceUpdate('composing', from).catch(() => {});
     if (userConfig.AUTO_RECORDING === 'true') conn.sendPresenceUpdate('recording', from).catch(() => {});
+
+    /* ---------- Auto behaviors (autoreact/autosticker/autoreply/guards) ---------- */
+    if (!mek.key.fromMe) {
+        try {
+            const { runAutoBehaviors } = require('./lib/autoBehaviors');
+            await runAutoBehaviors(conn, { userConfig, mek, from, isGroup, isAdmins, isOwner, body });
+        } catch (e) { log(`Auto behavior error (${number}): ${e.message}`, 'warning'); }
+    }
 
     const myquoted = buildQuotedCard();
     const reply = (t) => conn.sendMessage(from, { text: t }, { quoted: myquoted });

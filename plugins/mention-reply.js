@@ -30,12 +30,12 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // 1. Auto reply when bot is mentioned in group
 cmd({
   on: "body"
-}, async (conn, m, store, { isGroup, botNumber2 }) => {
+}, async (conn, m, store, { isGroup, botNumber2, userConfig }) => {
   try {
     const mek = m.mek || m;
     if (mek.key?.fromMe) return;
 
-    if (config.MENTION_REPLY !== 'true' || !isGroup || !botNumber2) return;
+    if (String((userConfig && userConfig.MENTION_REPLY) ?? config.MENTION_REPLY) !== 'true' || !isGroup || !botNumber2) return;
 
     const mentioned = m.mentionedJid || [];
     if (!mentioned.includes(botNumber2)) return;

@@ -1,5 +1,6 @@
 const { cmd, commands } = require('../inconnuboy');
 const config = require('../config');
+const { setSetting } = require('../lib/botSettings');
 
 // --- HELPER FUNCTIONS ---
 
@@ -65,7 +66,7 @@ cmd({
     category: "admin",
     use: ".antilink on/off",
     filename: __filename
-}, async (conn, m, store, { from, args, reply, isGroup, sender }) => {
+}, async (conn, m, store, { from, args, reply, isGroup, sender, number }) => {
     try {
         if (!isGroup) return reply("❌ Ye command sirf groups mein use kiya ja sakta hai.");
         
@@ -76,9 +77,14 @@ cmd({
 
         if (args[0].toLowerCase() === 'on') {
             config.ANTI_LINK = 'true';
+            // 2026-10-23 fix: setting DB mein bhi save karo (pehle sirf memory
+            // mein rehti thi, restart par khatam + handler ab merged config
+            // parhta hai)
+            if (number) await setSetting(number, 'ANTI_LINK', 'true').catch(() => {});
             return reply("✅ *Anti-link Protection active ho gayi hai.*");
         } else if (args[0].toLowerCase() === 'off') {
             config.ANTI_LINK = 'false';
+            if (number) await setSetting(number, 'ANTI_LINK', 'false').catch(() => {});
             return reply("❌ *Anti-link Protection band kar di gayi hai.*");
         } else {
             return reply("Invalid option! Use 'on' or 'off'.");
@@ -97,47 +103,62 @@ cmd({
     body,
     sender,
     isGroup,
-    reply
+    reply,
+    userConfig,
+    isOwner
 }) => {
     try {
-        // Check if anti-link is enabled (Check string 'true' or boolean true)
-        if (config.ANTI_LINK === 'false' || !config.ANTI_LINK || config.ANTI_LINK === false) {
+        // 2026-10-23 fix: enable/action ab session ki merged settings se
+        // (pehle static config tha — zz-settings wala .antilink is tak
+        // kabhi pohanchta hi nahi tha)
+        const uc = userConfig || {};
+        if (String(uc.ANTI_LINK) !== 'true') {
             return;
         }
 
         if (!isGroup) return;
+        if (isOwner) return;
 
         // Clean body to catch sneaky links
         let cleanBody = body.replace(/[\s\u200b-\u200d\uFEFF]/g, '').toLowerCase();
         const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+\.(?:com|org|net|co|pk|biz|id|info|xyz|online|site|website|tech|shop|store|blog|app|dev|io|ai|gov|edu|mil|me)(?:\/[^\s]*)?|whatsapp\.com\/channel\/|wa\.me\//gi;
         
         if (urlRegex.test(cleanBody)) {
-            // Admins are exempt
+            // Admins exempt — jab tak ADMIN_ACTION on na ho
             const senderIsAdmin = await isUserAdmin(conn, from, sender);
-            if (senderIsAdmin) return;
-
-            // Bot must be admin to act
-            const botIsAdmin = await isBotAdmin(conn, from);
-            if (!botIsAdmin) return;
-
-            console.log(`⚠️ Link detected from ${sender} in ${from}`);
+            if (senderIsAdmin && String(uc.ADMIN_ACTION) !== 'true') return;
 
             const userNumber = sender.split('@')[0] || 'User';
+            const kickMode = String(uc.ANTI_LINK_KICK) === 'true';
+            const deleteMode = kickMode || String(uc.DELETE_LINK) === 'true';
 
-            if (config.ANTI_LINK === 'true' || config.ANTI_LINK === true) {
-                // 1. Delete message
+            // Delete/kick ke liye bot ka admin hona zaroori hai
+            if (deleteMode) {
+                const botIsAdmin = await isBotAdmin(conn, from);
+                if (!botIsAdmin) return;
                 try {
                     await conn.sendMessage(from, { 'delete': m.key });
                 } catch (e) { console.error("Delete failed", e); }
+            }
 
-                // 2. Notification
+            console.log(`⚠️ Link detected from ${sender} in ${from}`);
+
+            if (kickMode) {
                 await conn.sendMessage(from, {
                     'text': `🚫 *ANTI-LINK PROTECTION*\n\n@${userNumber} ko link bhejne ki wajah se remove kar diya gaya hai.`,
                     'mentions': [sender]
                 });
-
-                // 3. Kick user
                 await conn.groupParticipantsUpdate(from, [sender], "remove");
+            } else if (deleteMode) {
+                await conn.sendMessage(from, {
+                    'text': `🚫 *ANTI-LINK*\n\n@${userNumber} is group mein links allowed nahi hain — message delete kar diya gaya hai.`,
+                    'mentions': [sender]
+                });
+            } else {
+                await conn.sendMessage(from, {
+                    'text': `⚠️ @${userNumber} is group mein links allowed nahi hain.`,
+                    'mentions': [sender]
+                });
             }
         }
     } catch (error) {
