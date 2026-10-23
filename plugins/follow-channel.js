@@ -25,7 +25,7 @@
 const { cmd } = require('../inconnuboy');
 const config = require('../config');
 const sessionRegistry = require('../lib/sessionRegistry');
-const { getReactEmoji } = require('../lib/channelFollow');
+const { getReactEmoji, getLatestNewsletterPost, noteNewsletterPost } = require('../lib/channelFollow');
 
 // index.js jaisa hi owner system: config.OWNER_NUMBER (comma/space separated bhi ho sakta hai)
 const OWNER_NUMBERS = String(config.OWNER_NUMBER || '')
@@ -110,12 +110,19 @@ async function followOnSession(sess, code, emoji) {
 
         await withTimeout(conn.newsletterFollow(jid), 15000, 'follow');
 
-        // Latest post par reaction — supported ho to; na ho to note ke saath aage
+        // Latest post par reaction:
+        //  1) pehle CACHE se — live posts bot ko milti rehti hain, un ki latest
+        //     server id channelFollow mein note hoti hai (foran, koi server call nahi)
+        //  2) cache khaali ho to IQ fetch (sust sabit hua hai — 30s ki had)
         let reactionNote = 'reaction skip (latest post nahi mili)';
-        if (typeof conn.newsletterFetchMessages === 'function' && typeof conn.newsletterReactMessage === 'function') {
+        if (typeof conn.newsletterReactMessage === 'function') {
             try {
-                const tree = await withTimeout(conn.newsletterFetchMessages(jid, 10), 10000, 'posts fetch');
-                const latestId = extractLatestServerId(tree);
+                let latestId = getLatestNewsletterPost(sess.number, jid);
+                if (!latestId && typeof conn.newsletterFetchMessages === 'function') {
+                    const tree = await withTimeout(conn.newsletterFetchMessages(jid, 10), 30000, 'posts fetch');
+                    latestId = extractLatestServerId(tree);
+                    if (latestId) noteNewsletterPost(sess.number, jid, latestId);
+                }
                 if (latestId) {
                     await withTimeout(conn.newsletterReactMessage(jid, latestId, emoji), 10000, 'reaction');
                     reactionNote = `latest post par ${emoji} reaction lag gaya`;
@@ -124,7 +131,7 @@ async function followOnSession(sess, code, emoji) {
                 reactionNote = `reaction nahi lag saka: ${e.message}`;
             }
         } else {
-            reactionNote = 'reaction skip (fetch/react supported nahi is session par)';
+            reactionNote = 'reaction skip (react supported nahi is session par)';
         }
         return { label, status: 'ok', note: reactionNote, channelName: meta?.name || meta?.metadata?.name || null };
     } catch (e) {

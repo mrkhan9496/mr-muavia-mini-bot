@@ -636,9 +636,10 @@ async function processMessage(conn, number, mek) {
     // (duplicate guard + configurable emoji + proper logging)
     if (remoteJid.endsWith('@newsletter')) {
         try {
-            const { reactToNewsletter } = require('./lib/channelFollow');
+            const { reactToNewsletter, noteNewsletterPost } = require('./lib/channelFollow');
             const serverId = mek.newsletterServerId || (mek.key && mek.key.server_id);
             if (serverId) {
+                noteNewsletterPost(number, remoteJid, serverId); // .follow ke liye latest post yaad rakho
                 await reactToNewsletter(conn, remoteJid, serverId);
             }
         } catch (e) {
