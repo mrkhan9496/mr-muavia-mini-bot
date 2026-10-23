@@ -5,16 +5,18 @@
  *
  * Istemal:
  *   .follow https://whatsapp.com/channel/<INVITE_CODE>
- *   .follow https://whatsapp.com/channel/<INVITE_CODE> 🔥   (apni pasand ka reaction)
+ *   .follow https://whatsapp.com/channel/<INVITE_CODE> 🔥   (link ke BAAD apni pasand ka reaction)
  *
  * Kaam:
  *   - Link validate karke invite code nikalta hai.
  *   - Bot ki HAR connected session se channel follow karwata hai
  *     (Baileys newsletterFollow — wahi method jo auto-follow use karta hai).
- *   - Phir channel ki LATEST post par selected reaction lagata hai
- *     (newsletterFetchMessages + newsletterReactMessage) — jahan supported ho.
+ *   - Phir channel ki LATEST post par selected reaction lagata hai.
+ *     NOTE: Baileys ka newsletterFetchMessages posts ki list NAHI deta —
+ *     wo IQ ka kacha node-tree deta hai; latest post ki server id us tree
+ *     ke andar se nikaali jati hai (extractLatestServerId).
+ *   - Har network call ki time-limit hai — koi call atke to report nahi rukti.
  *   - Har session alag try/catch mein: ek fail ho to baqi nahi rukte.
- *   - Aakhir mein per-session report bhejta hai.
  *
  * Security: koi credential/auth data access ya log NAHI hota; sirf live
  * session references sessionRegistry se milte hain.
@@ -44,12 +46,54 @@ function extractInviteCode(text) {
     return m ? m[1] : null;
 }
 
-// Fetch ki gayi post se server id ke tamam known shapes try karo
-function postServerId(item) {
-    if (!item || typeof item !== 'object') return null;
-    const cand = item.server_id ?? item.serverId ?? item.id ?? item.messageId ?? null;
-    if (cand === null || cand === undefined || cand === '') return null;
-    return String(cand);
+// Reaction sirf wo emoji jo LINK ke BAAD likha ho — share-text ke sajawati
+// emoji (👑🎭 waghera) reaction nahi bante.
+function pickReaction(text, fallback) {
+    const s = String(text || '');
+    const linkMatch = s.match(/whatsapp\.com\/channel\/[A-Za-z0-9]+/i);
+    if (!linkMatch) return fallback;
+    const after = s.slice(linkMatch.index + linkMatch[0].length);
+    const tokens = after.split(/\s+/).filter(Boolean);
+    const em = tokens.find(t => t.length <= 8 && /[^\x00-\x7F]/.test(t));
+    return em || fallback;
+}
+
+function withTimeout(promise, ms, label) {
+    let timer;
+    const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timeout (${Math.round(ms / 1000)}s)`)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+// newsletterFetchMessages ka jawab = raw node tree. Poora tree ghoom kar
+// sab se bari numeric server id wali post = latest post.
+function extractLatestServerId(node, depth = 0) {
+    if (!node || depth > 8) return null;
+    if (Array.isArray(node)) {
+        let best = null;
+        for (const n of node) {
+            const v = extractLatestServerId(n, depth + 1);
+            if (v && (best === null || Number(v) > Number(best))) best = v;
+        }
+        return best;
+    }
+    if (typeof node !== 'object') return null;
+    let best = null;
+    const attrs = node.attrs || {};
+    const cand = attrs.server_id ?? attrs.message_id ?? null;
+    if (cand !== null && /^\d+$/.test(String(cand))) best = String(cand);
+    // Array-shaped results (agar kisi build mein posts list ki surat aayein)
+    const sid = node.server_id ?? node.serverId ?? node.id ?? null;
+    if (sid !== null && /^\d+$/.test(String(sid)) && node.tag !== 'iq') {
+        if (best === null || Number(sid) > Number(best)) best = String(sid);
+    }
+    const kids = Array.isArray(node.content) ? node.content : [];
+    for (const k of kids) {
+        const v = extractLatestServerId(k, depth + 1);
+        if (v && (best === null || Number(v) > Number(best))) best = v;
+    }
+    return best;
 }
 
 async function followOnSession(sess, code, emoji) {
@@ -60,26 +104,20 @@ async function followOnSession(sess, code, emoji) {
         return { label, status: 'error', note: 'is session par channel methods supported nahi' };
     }
     try {
-        const meta = await conn.newsletterMetadata('invite', code);
+        const meta = await withTimeout(conn.newsletterMetadata('invite', code), 15000, 'channel resolve');
         const jid = meta?.id;
         if (!jid) return { label, status: 'error', note: 'channel resolve nahi hua (invalid ya band channel?)' };
 
-        await conn.newsletterFollow(jid);
+        await withTimeout(conn.newsletterFollow(jid), 15000, 'follow');
 
         // Latest post par reaction — supported ho to; na ho to note ke saath aage
         let reactionNote = 'reaction skip (latest post nahi mili)';
         if (typeof conn.newsletterFetchMessages === 'function' && typeof conn.newsletterReactMessage === 'function') {
             try {
-                const posts = await conn.newsletterFetchMessages(jid, 5, 0, 0);
-                const arr = Array.isArray(posts) ? posts : (Array.isArray(posts?.messages) ? posts.messages : []);
-                // Latest = sab se bari server id wali post (fetch order par bharosa nahi)
-                let latest = null, latestId = null;
-                for (const p of arr) {
-                    const sid = postServerId(p);
-                    if (sid && (latestId === null || Number(sid) > Number(latestId))) { latest = p; latestId = sid; }
-                }
+                const tree = await withTimeout(conn.newsletterFetchMessages(jid, 10), 10000, 'posts fetch');
+                const latestId = extractLatestServerId(tree);
                 if (latestId) {
-                    await conn.newsletterReactMessage(jid, latestId, emoji);
+                    await withTimeout(conn.newsletterReactMessage(jid, latestId, emoji), 10000, 'reaction');
                     reactionNote = `latest post par ${emoji} reaction lag gaya`;
                 }
             } catch (e) {
@@ -114,7 +152,7 @@ cmd({
         return reply(
             '📢 *Istemaal:*\n' +
             '.follow https://whatsapp.com/channel/CHANNEL_ID\n' +
-            '.follow https://whatsapp.com/channel/CHANNEL_ID 🔥  (apni pasand ka reaction)\n\n' +
+            '.follow https://whatsapp.com/channel/CHANNEL_ID 🔥  (link ke baad apni pasand ka reaction)\n\n' +
             '_Ye command tamam connected sessions se channel follow karwati hai aur latest post par reaction lagati hai._'
         );
     }
@@ -128,11 +166,8 @@ cmd({
         );
     }
 
-    // Reaction: doosra token emoji ho to wahi, warna default (CHANNEL_REACT_EMOJI ya ❤️)
-    const tokens = text.split(/\s+/);
-    let emoji = getReactEmoji();
-    const maybeEmoji = tokens.find(t => !/whatsapp\.com/i.test(t) && t.length <= 8 && /[^\x00-\x7F]/.test(t));
-    if (maybeEmoji) emoji = maybeEmoji;
+    // Reaction: link ke baad wala emoji, warna default (CHANNEL_REACT_EMOJI ya ❤️)
+    const emoji = pickReaction(text, getReactEmoji());
 
     // ── Sessions: registry se; khaali ho to sirf current session ──
     let targets = sessionRegistry.list();
@@ -165,4 +200,4 @@ cmd({
     );
 });
 
-module.exports = { extractInviteCode, postServerId, followOnSession, OWNER_NUMBERS, ALLOWED };
+module.exports = { extractInviteCode, pickReaction, extractLatestServerId, followOnSession, OWNER_NUMBERS, ALLOWED };
