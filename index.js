@@ -640,7 +640,7 @@ async function processMessage(conn, number, mek) {
             const serverId = mek.newsletterServerId || (mek.key && mek.key.server_id);
             if (serverId) {
                 noteNewsletterPost(number, remoteJid, serverId); // .follow ke liye latest post yaad rakho
-                await reactToNewsletter(conn, remoteJid, serverId);
+                await reactToNewsletter(conn, remoteJid, serverId, number); // per-session react — har session apna
             }
         } catch (e) {
             console.log(`[channel] React handler error: ${e.message}`);

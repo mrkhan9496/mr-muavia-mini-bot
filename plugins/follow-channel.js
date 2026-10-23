@@ -25,7 +25,7 @@
 const { cmd } = require('../inconnuboy');
 const config = require('../config');
 const sessionRegistry = require('../lib/sessionRegistry');
-const { getReactEmoji, getLatestNewsletterPost, noteNewsletterPost } = require('../lib/channelFollow');
+const { getReactEmoji, getLatestNewsletterPost, noteNewsletterPost, markChannelFollowed } = require('../lib/channelFollow');
 
 // index.js jaisa hi owner system: config.OWNER_NUMBER (comma/space separated bhi ho sakta hai)
 const OWNER_NUMBERS = String(config.OWNER_NUMBER || '')
@@ -109,6 +109,8 @@ async function followOnSession(sess, code, emoji) {
         if (!jid) return { label, status: 'error', note: 'channel resolve nahi hua (invalid ya band channel?)' };
 
         await withTimeout(conn.newsletterFollow(jid), 15000, 'follow');
+        // Is channel ki aane wali posts par ab tamam sessions KHUD react karenge
+        try { markChannelFollowed(jid); } catch (_) {}
 
         // Latest post par reaction:
         //  1) pehle CACHE se — live posts bot ko milti rehti hain, un ki latest
