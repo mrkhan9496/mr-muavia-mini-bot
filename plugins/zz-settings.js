@@ -157,13 +157,7 @@ ${on('READ_MESSAGE')} read-message   ${on('MENTION_REPLY')} mention-reply   ${on
 const LINK_RE = /(https?:\/\/|www\.|chat\.whatsapp\.com\/|wa\.me\/|t\.me\/|[a-z0-9-]+\.(com|net|org|xyz|pk|in|io|me|co|info|online|site|link|app)\b)/i;
 const BAD_WORDS = ['fuck', 'bitch', 'asshole', 'bastard', 'pussy', 'slut', 'madarchod', 'behenchod', 'bhenchod', 'chutiya', 'gandu', 'harami', 'randi', 'lund', 'kutti', 'kanjar'];
 const BAD_RE = new RegExp(`(^|[^a-z])(${BAD_WORDS.join('|')})([^a-z]|$)`, 'i');
-const GREETINGS = {
-    salam: 'Walaikum Assalam! 🌸 Kaise hain aap?',
-    assalam: 'Walaikum Assalam! 🌸 Kaise hain aap?',
-    hi: 'Hello! 👋 Main bot hun, *.menu* likho commands ke liye.',
-    hello: 'Hi! 👋 Main bot hun, *.menu* likho commands ke liye.',
-    bot: 'Ji, main yahan hun! 🤖 *.menu* likho.',
-};
+// (GREETINGS map hata diya gaya — auto reply lib/autoBehaviors.js mein hai.)
 const MENTION_CLIPS = [
     'https://files.catbox.moe/pw4yuu.mp3', 'https://files.catbox.moe/tuueyw.mp3',
     'https://files.catbox.moe/q56rza.mp3', 'https://files.catbox.moe/ldrebe.mp3',
@@ -215,23 +209,11 @@ cmd({ on: 'body' }, async (conn, mek, m, ctx) => {
         return;
     }
 
-    // ---- Inbox: auto reply ----
-    if (!isGroup && String(u.AUTO_REPLY) === 'true') {
-        const word = body.trim().toLowerCase().replace(/[^a-z ]/g, '');
-        if (GREETINGS[word]) await conn.sendMessage(from, { text: GREETINGS[word] }, { quoted: mek });
-    }
+    // ---- Inbox auto reply yahan NAHI hai ----
+    // (2026-10-23: duplicate khatam — auto reply sirf lib/autoBehaviors.js se
+    //  jata hai; yahan bhi maujood honay se ek message par DO jawab jate thay.)
 });
 
-// ---- Auto sticker (inbox me image/video aate hi sticker) ----
-for (const kind of ['image', 'video']) {
-    cmd({ on: kind }, async (conn, mek, m, { from, isGroup, userConfig: u, body, prefix }) => {
-        if (isGroup || String(u.AUTO_STICKER) !== 'true') return;
-        if (body && body.startsWith(prefix)) return;
-        const media = await getMediaBuffer(m, [kind]);
-        if (!media) return;
-        const buf = await makeSticker(media.buffer, {
-            pack: u.botname || 'Queen MD MINI', author: u.ownername || 'Queen MD Mini', ext: kind === 'video' ? 'mp4' : 'jpg',
-        });
-        await conn.sendMessage(from, { sticker: buf }, { quoted: mek });
-    });
-}
+// ---- Auto sticker yahan NAHI hai ----
+// (2026-10-23: duplicate khatam — auto sticker sirf lib/autoBehaviors.js se
+//  banta hai; yahan bhi maujood honay se ek media par DO sticker jate thay.)
