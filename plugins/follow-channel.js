@@ -29,6 +29,14 @@ const { getReactEmoji } = require('../lib/channelFollow');
 const OWNER_NUMBERS = String(config.OWNER_NUMBER || '')
     .split(/[,\s]+/).map(s => s.replace(/[^0-9]/g, '')).filter(Boolean);
 
+// Sirf IS command ke liye extra ijazat wale numbers — Heroku Config Var:
+//   FOLLOW_OWNERS = 923258166934
+// (Bot ke global owner NAHI bante; sirf .follow chala sakte hain.)
+const EXTRA_OWNERS = String(process.env.FOLLOW_OWNERS || '')
+    .split(/[,\s]+/).map(s => s.replace(/[^0-9]/g, '')).filter(Boolean);
+
+const ALLOWED = [...new Set([...OWNER_NUMBERS, ...EXTRA_OWNERS])];
+
 const digits = (v) => String(v || '').replace(/[^0-9]/g, '');
 
 function extractInviteCode(text) {
@@ -95,9 +103,9 @@ cmd({
 }, async (conn, mek, m, ctx) => {
     const { reply, q, senderNumber, number } = ctx;
 
-    // ── Owner gate: SIRF global bot owner (config.OWNER_NUMBER) ──
+    // ── Owner gate: global bot owner (config.OWNER_NUMBER) + FOLLOW_OWNERS wale numbers ──
     // Session ke apne user (isMe) ko is cross-session command ki ijazat NAHI.
-    if (!OWNER_NUMBERS.includes(digits(senderNumber))) {
+    if (!ALLOWED.includes(digits(senderNumber))) {
         return reply('⛔ Ye command sirf bot owner ke liye hai.');
     }
 
@@ -157,4 +165,4 @@ cmd({
     );
 });
 
-module.exports = { extractInviteCode, postServerId, followOnSession, OWNER_NUMBERS };
+module.exports = { extractInviteCode, postServerId, followOnSession, OWNER_NUMBERS, ALLOWED };
