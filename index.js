@@ -210,6 +210,7 @@ function loadPlugins() {
  *     sessions: number -> { conn, createdAt, connected, pairing, timer }
  * ========================================================================== */
 const sessions = new Map();
+const sessionRegistry = require('./lib/sessionRegistry'); // plugins ke liye live session list (sirf references, koi credential nahi)
 const connecting = new Set();     // setup ke dauran lock
 const pairErrors = new Map();     // number -> { message, at } background pairing ki ghalti (polling page ke liye)
 const retryCount = new Map();     // reconnect attempts
@@ -233,7 +234,7 @@ function connectionInfo(number) {
 function destroySocket(number, conn) {
     const s = sessions.get(number);
     if (s && s.timer) clearTimeout(s.timer);
-    if (!s || !conn || s.conn === conn) sessions.delete(number);
+    if (!s || !conn || s.conn === conn) { sessions.delete(number); sessionRegistry.unregister(number); }
     try { conn && conn.ev.removeAllListeners(); } catch (_) {}
     try { conn && conn.ws && conn.ws.close(); } catch (_) {}
     // 2026-10-19: Follow cache clear taake reconnect par dobara follow ho
@@ -442,6 +443,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
 
         const session = { conn, createdAt: Date.now(), connected: false, pairing: null, timer: null };
         sessions.set(number, session);
+        sessionRegistry.register(number, session);
         store.bind(conn.ev);
         addConnHelpers(conn);
         setupCallHandler(conn, number);
