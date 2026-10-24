@@ -1,22 +1,28 @@
 // 🤖 AI commands (free APIs, ek fail ho to dusri khud try hoti hai)
 const { cmd } = require('../inconnuboy');
 const config = require('../config');
-const { getText, getJson, getBuffer, tryEach } = require('../lib/util');
+const { getText, getBuffer, tryEach } = require('../lib/util');
+const { chatText, getApiKey } = require('../lib/geminiApi');
 
 const enc = encodeURIComponent;
 const SYSTEM = 'You are Queen MD MINI, a friendly WhatsApp assistant. Reply in the same language as the user (Roman Urdu if they write Roman Urdu). Keep answers clear and concise.';
 
+// AI chain — 2026-10-24 fix (users ki complaints par):
+// - Pollinations ke sirf 'openai' model ne jawab diya (VM test); baqi models
+//   (openai-large, mistral, llama, qwen-coder, searchgpt) HTTP 402 dete hain,
+//   is liye per-command model naam ab bekaar hai — sab 'openai' par jate hain.
+// - siputzx metaai (503) aur giftedtech (DNS/host dead — users ko ENOTFOUND
+//   nazar aata tha) chain se HATA diye.
+// - Fallback: Gemini (lib/geminiApi) — sirf jab GEMINI_API_KEY set ho, warna
+//   khamoshi se skip (koi key error user ko nahi dikhaya jata).
+// - Sab fail hon to raw error (DNS waghera) user ko kabhi nahi jata — chat()
+//   handler saaf message bhejta hai.
 async function askAI(prompt, model = 'openai', system = SYSTEM) {
     return tryEach([
-        async () => getText(`https://text.pollinations.ai/${enc(prompt)}?model=${model}&system=${enc(system)}`),
-        async () => getText(`https://text.pollinations.ai/${enc(prompt)}?model=mistral&system=${enc(system)}`),
+        async () => getText(`https://text.pollinations.ai/${enc(prompt)}?model=openai&system=${enc(system)}`),
         async () => {
-            const d = await getJson(`https://api.siputzx.my.id/api/ai/metaai?query=${enc(prompt)}`);
-            return d && (d.data || d.result);
-        },
-        async () => {
-            const d = await getJson(`https://api.giftedtech.my.id/api/ai/gpt4o?apikey=gifted&q=${enc(prompt)}`);
-            return d && (d.result || d.message);
+            if (!getApiKey()) return null;
+            return chatText(prompt, system, 'global');
         },
     ]);
 }
@@ -27,7 +33,14 @@ function chat(pattern, alias, model, emoji, label, system) {
             const text = q || (m.quoted && m.quoted.text);
             if (!text) return reply(`${emoji} *${label}*\nSawal likho.\nExample: *${prefix}${command} Pakistan ka capital kya hai?*`);
             await conn.sendPresenceUpdate('composing', from).catch(() => {});
-            const ans = await askAI(text, model, system);
+            let ans;
+            try {
+                ans = await askAI(text, model, system);
+            } catch (e) {
+                // Raw provider error (DNS/402/503) user ko kabhi nahi dikhana
+                console.log(`[ai] ${pattern} failed:`, e.message);
+                return reply(`❌ *${label}* abhi jawab nahi de raha (free service ki limit ya provider down hai).\nThori dair baad dobara try karein.`);
+            }
             await conn.sendMessage(from, { text: `${emoji} *${label}*\n\n${String(ans).trim()}\n\n> ${config.BOT_FOOTER}` }, { quoted: mek });
         });
 }
@@ -72,3 +85,6 @@ cmd({ pattern: 'luma', alias: ['dream', 'cinematic'], desc: 'Cinematic AI image'
         if (!q) return reply(`🎬 Scene ka description likho.\nExample: *${prefix}luma a lonely astronaut on mars*`);
         await makeImage(conn, mek, from, q, 'flux', 'Luma (Cinematic)', reply, ', cinematic lighting, ultra detailed, 8k, movie still');
     });
+
+// Tests ke liye (plugins side effect se load hote hain, export se koi farq nahi)
+module.exports = { askAI };
