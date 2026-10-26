@@ -348,7 +348,9 @@ function setupCallHandler(conn, number) {
             for (const call of calls) {
                 if (call.status !== 'offer') continue;
                 await conn.rejectCall(call.id, call.from);
-                await conn.sendMessage(call.from, { text: userConfig.REJECT_MSG || config.REJECT_MSG });
+                // 2026-10-27 silent reject (Muavia ki choice #2): reject ke
+                // baad caller ko koi message nahi jayega (pehle har call par
+                // REJECT_MSG jata tha -> chat mein spam lagta tha).
                 log(`Call reject: ${number} <- ${call.from}`, 'info');
             }
         } catch (err) {
