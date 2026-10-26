@@ -38,6 +38,7 @@ const events = require('./inconnuboy');
 const { sms } = require('./lib/msg');
 const { groupEvents } = require('./lib/groupEvents');
 const { handleAntidelete } = require('./lib/antidelete');
+const { installSpamGuard } = require('./lib/spamGuard');
 const { useMongoAuthState, hasMongoAuth, clearMongoAuth } = require('./lib/mongoAuth');
 const {
     connectdb,
@@ -447,6 +448,7 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
         sessionRegistry.register(number, session);
         store.bind(conn.ev);
         addConnHelpers(conn);
+        installSpamGuard(conn, config.BOT_NAME); // 2026-10-26 kill-switch: exact 'Queen MD' text kabhi na jaye
         setupCallHandler(conn, number);
 
         /* ---------------- creds save (MongoDB) ---------------- */
