@@ -437,9 +437,19 @@ async function startSession(rawNumber, { res = null, restore = false } = {}) {
             generateHighQualityLinkPreview: true,
             syncFullHistory: SETTINGS.SYNC_HISTORY,
             markOnlineOnConnect: SETTINGS.MARK_ONLINE,
+            // 2026-10-27 FIX (retry spam): store mein na mile to undefined
+            // return karo, koi fabricated text NAHI. Pehle yahan BOT_NAME
+            // ('Queen MD') fabricate hota tha — Baileys ka retry handler
+            // (messages-recv.js sendMessagesAgain) us fabricated text ko
+            // asal message samajh kar group mein dobara bhej deta tha, aur
+            // wo resend spamGuard ko bypass karta tha (relayMessage ka
+            // original reference socket banne ke waqt capture ho jata hai).
+            // undefined par Baileys 'message not available' log kar ke kuch
+            // nahi bhejta; baqi getMessage users (event/history) bhi
+            // undefined ko safely skip karte hain.
             getMessage: async (key) => {
                 const msg = await store.loadMessage(key.remoteJid, key.id);
-                return msg && msg.message ? msg.message : { conversation: config.BOT_NAME };
+                return msg && msg.message ? msg.message : undefined;
             },
         });
 
