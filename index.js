@@ -747,12 +747,13 @@ async function processMessage(conn, number, mek) {
     if (userConfig.AUTO_RECORDING === 'true') conn.sendPresenceUpdate('recording', from).catch(() => {});
 
     /* ---------- Auto behaviors (autoreact/autosticker/autoreply/guards) ---------- */
-    if (!mek.key.fromMe) {
-        try {
-            const { runAutoBehaviors } = require('./lib/autoBehaviors');
-            await runAutoBehaviors(conn, { userConfig, mek, from, isGroup, isAdmins, isOwner, body });
-        } catch (e) { log(`Auto behavior error (${number}): ${e.message}`, 'warning'); }
-    }
+    // 2026-10-27 dono taraf react: fromMe par bhi runAutoBehaviors chalao —
+    // module ke andar sirf react apne messages par lagta hai, baqi behaviors
+    // fromMe par ab bhi blocked hain.
+    try {
+        const { runAutoBehaviors } = require('./lib/autoBehaviors');
+        await runAutoBehaviors(conn, { userConfig, mek, from, isGroup, isAdmins, isOwner, body });
+    } catch (e) { log(`Auto behavior error (${number}): ${e.message}`, 'warning'); }
 
     const myquoted = buildQuotedCard();
     const reply = (t) => conn.sendMessage(from, { text: t }, { quoted: myquoted });
