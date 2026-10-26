@@ -76,18 +76,7 @@ cmd({ pattern: 'url', alias: ['upload', 'tourl', 'catbox'], desc: 'Media ko link
         reply(`📤 *Upload ho gaya*\n${link}${FOOT}`);
     });
 
-/* ---------------- repeat / readmore ---------------- */
-cmd({ pattern: 'repeat', alias: ['spam', 'rep'], desc: 'Text repeat: .repeat 3 hello', category: 'convert', react: '🔁', filename: __filename },
-    async (conn, mek, m, { from, args, reply, prefix, isGroup, isAdmins, isOwner }) => {
-        // 2026-10-26: group spam fix — group mein sirf admin/owner repeat chala sakta hai.
-        // Warna koi bhi member .spam 10 <text> se poora group bhar deta hai (Ayesha ki duniya case).
-        if (isGroup && !isAdmins && !isOwner) return reply('❌ *Queen MD:* Group mein repeat/spam sirf admin chala sakta hai.');
-        const n = parseInt(args[0], 10);
-        const text = args.slice(1).join(' ');
-        if (!n || n < 1 || !text) return reply(`🔁 Use: *${prefix}repeat 3 hello*  (max 10)`);
-        for (let i = 0; i < Math.min(n, 10); i++) { await conn.sendMessage(from, { text }); await sleep(700); }
-    });
-
+/* ---------------- readmore ---------------- */
 cmd({ pattern: 'readmore', alias: ['rm', 'readmoretext'], desc: 'Read more wala text: .readmore pehla|dusra', category: 'convert', react: '📖', filename: __filename },
     async (conn, mek, m, { from, q, reply, prefix }) => {
         if (!q) return reply(`📖 Use: *${prefix}readmore Pehli line | Chhupa hua text*`);

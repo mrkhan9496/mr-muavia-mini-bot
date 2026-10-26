@@ -284,7 +284,6 @@ async (conn, mek, m, { from, sender, reply }) => {
 *├▢ urldecode*
 *├▢ urlencode*
 *├▢ url*
-*├▢ repeat*
 *├▢ ask*
 *├▢ readmore*
 *╰────────────────*
