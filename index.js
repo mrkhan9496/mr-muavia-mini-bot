@@ -45,6 +45,7 @@ const {
     deleteSessionFromMongoDB,
     getUserConfigFromMongoDB,
     updateUserConfigInMongoDB,
+    migrateStatusEmoji,
     addNumberToMongoDB,
     removeNumberFromMongoDB,
     getAllNumbersFromMongoDB,
@@ -1092,6 +1093,8 @@ async function main() {
 
     const dbOk = await connectdb(5);
     if (dbOk) {
+        // 2026-10-26: status react list migration (purani default wali configs -> Muavia ki nayi list)
+        try { await migrateStatusEmoji(); } catch (_) {}
         setTimeout(restoreAllSessions, 2000);
     } else {
         log('Database abhi connect nahi hua, har 30 sec me dobara try hoga', 'error');

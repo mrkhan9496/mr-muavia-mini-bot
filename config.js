@@ -33,7 +33,7 @@ module.exports = {
     // ===========================================================
     AUTO_VIEW_STATUS: process.env.AUTO_VIEW_STATUS || 'true', // Voir automatiquement les statuts
     AUTO_LIKE_STATUS: process.env.AUTO_LIKE_STATUS || 'true', // Liker automatiquement les statuts
-    AUTO_LIKE_EMOJI: ['❤️', '🌹', '😇', '💥', '🔥', '💫', '💎', '💙', '🌝', '💚'], 
+    AUTO_LIKE_EMOJI: ['💙', '💜', '🧡', '🤍', '🩶', '🖤', '🤎', '🩷', '🩵', '💚', '💛', '😙', '😗', '🫣', '😷'], // Muavia ki status react list (2026-10-26)
     
     AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || 'false', // Répondre aux statuts
     AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || 'Nice status! 🔥', // Message de réponse
