@@ -78,7 +78,10 @@ cmd({ pattern: 'url', alias: ['upload', 'tourl', 'catbox'], desc: 'Media ko link
 
 /* ---------------- repeat / readmore ---------------- */
 cmd({ pattern: 'repeat', alias: ['spam', 'rep'], desc: 'Text repeat: .repeat 3 hello', category: 'convert', react: '🔁', filename: __filename },
-    async (conn, mek, m, { from, args, reply, prefix }) => {
+    async (conn, mek, m, { from, args, reply, prefix, isGroup, isAdmins, isOwner }) => {
+        // 2026-10-26: group spam fix — group mein sirf admin/owner repeat chala sakta hai.
+        // Warna koi bhi member .spam 10 <text> se poora group bhar deta hai (Ayesha ki duniya case).
+        if (isGroup && !isAdmins && !isOwner) return reply('❌ *Queen MD:* Group mein repeat/spam sirf admin chala sakta hai.');
         const n = parseInt(args[0], 10);
         const text = args.slice(1).join(' ');
         if (!n || n < 1 || !text) return reply(`🔁 Use: *${prefix}repeat 3 hello*  (max 10)`);
