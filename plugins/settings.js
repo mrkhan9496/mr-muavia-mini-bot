@@ -50,6 +50,31 @@ cmd({
     );
 });
 
+// ── ANTI DELETE ──
+// Per-chat: jis chat mein command chale, usi chat ke liye on/off.
+// (Handler lib/antidelete.js Postgres queenmd_antidelete table parhta hai —
+//  userConfig toggle is par asar NAHI karta, is liye seedha setAntideleteStatus.)
+cmd({
+    pattern: 'antidelete',
+    alias: ['antidel'],
+    desc: 'Resend deleted messages in this chat',
+    category: 'settings',
+    react: '🗑️'
+}, async (conn, mek, m, { from, args, reply, isOwner }) => {
+    if (!isOwner) return reply('*❌ Owner only command.*');
+    const { getAntideleteStatus, setAntideleteStatus } = require('../data/Antidelete');
+    const action = (args[0] || '').toLowerCase();
+    if (!['on', 'off'].includes(action)) {
+        const current = await getAntideleteStatus(from);
+        return reply(`Current status: *${current ? 'ON ✅' : 'OFF ❌'}*\nUsage: *.antidelete on/off*`);
+    }
+    const ok = await setAntideleteStatus(from, action === 'on');
+    if (!ok) return reply('*❌ Database error, dobara try karo.*');
+    return reply(action === 'on'
+        ? '*🗑️ Anti Delete: ENABLED ✅*\n\nIs chat mein delete kiye gaye messages dobara bhej diye jayenge.'
+        : '*🗑️ Anti Delete: DISABLED ❌*');
+});
+
 // ── AUTO RECORDING ──
 cmd({
     pattern: 'autorecording',
